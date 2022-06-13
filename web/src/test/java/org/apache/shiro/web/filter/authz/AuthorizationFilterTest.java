@@ -18,6 +18,7 @@
  */
 package org.apache.shiro.web.filter.authz;
 
+import net.jcip.annotations.NotThreadSafe;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.test.SecurityManagerTestSupport;
@@ -34,6 +35,7 @@ import static org.easymock.EasyMock.*;
 /**
  * Test cases for the {@link AuthorizationFilter} class.
  */
+@NotThreadSafe
 public class AuthorizationFilterTest extends SecurityManagerTestSupport {
 
     @Test
