@@ -94,23 +94,27 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
     }
 
     public FilterChain getChain(ServletRequest request, ServletResponse response, FilterChain originalChain) {
+        /*获取过滤器链管理器*/
         FilterChainManager filterChainManager = getFilterChainManager();
         if (!filterChainManager.hasChains()) {
             return null;
         }
-
+        /*获取当前请求路径*/
         final String requestURI = getPathWithinApplication(request);
         final String requestURINoTrailingSlash = removeTrailingSlash(requestURI);
 
         //the 'chain names' in this implementation are actually path patterns defined by the user.  We just use them
         //as the chain name for the FilterChainManager's requirements
+        /*遍历每一个配置的url*/
         for (String pathPattern : filterChainManager.getChainNames()) {
             // If the path does match, then pass on to the subclass implementation for specific checks:
+            /*如果匹配成功*/
             if (pathMatches(pathPattern, requestURI)) {
                 if (log.isTraceEnabled()) {
                     log.trace("Matched path pattern [{}] for requestURI [{}].  " +
                             "Utilizing corresponding filter chain...", pathPattern, Encode.forHtml(requestURI));
                 }
+                /*获取对应的 filter 包装成 ProxiedFilterChain 返回*/
                 return filterChainManager.proxy(originalChain, pathPattern);
             } else {
 

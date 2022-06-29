@@ -60,7 +60,9 @@ public abstract class SessionsSecurityManager extends AuthorizingSecurityManager
      */
     public SessionsSecurityManager() {
         super();
+        /*初始化 默认的session管理器*/
         this.sessionManager = new DefaultSessionManager();
+        /*session 管理器 设置 缓存管理器*/
         applyCacheManagerToSessionManager();
     }
 
@@ -78,11 +80,13 @@ public abstract class SessionsSecurityManager extends AuthorizingSecurityManager
      * @param sessionManager delegate instance to use to support this manager's <tt>SessionManager</tt> method calls.
      */
     public void setSessionManager(SessionManager sessionManager) {
+        /*设置session 管理器*/
         this.sessionManager = sessionManager;
         afterSessionManagerSet();
     }
 
     protected void afterSessionManagerSet() {
+        /*session管理器 设置 缓存管理器属性*/
         applyCacheManagerToSessionManager();
         applyEventBusToSessionManager();
     }

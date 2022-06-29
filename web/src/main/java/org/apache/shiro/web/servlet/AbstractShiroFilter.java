@@ -77,10 +77,10 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
 
     private static final String STATIC_INIT_PARAM_NAME = "staticSecurityManagerEnabled";
 
-    // Reference to the security manager used by this filter
+    // 对此过滤器使用的安全管理器的引用
     private WebSecurityManager securityManager;
 
-    // Used to determine which chain should handle an incoming request/response
+    // 用于确定应由哪个链处理传入的请求响应
     private FilterChainResolver filterChainResolver;
 
     /**
@@ -149,6 +149,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
     protected final void onFilterConfigSet() throws Exception {
         //added in 1.2 for SHIRO-287:
         applyStaticSecurityManagerEnabledConfig();
+        /*子类拓展点*/
         init();
         ensureSecurityManager();
         //added in 1.2 for SHIRO-287:
@@ -166,6 +167,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      */
     private void applyStaticSecurityManagerEnabledConfig() {
         String value = getInitParam(STATIC_INIT_PARAM_NAME);
+        /*保留属性值*/
         if (value != null) {
             Boolean b = Boolean.valueOf(value);
             if (b != null) {
@@ -183,9 +185,11 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      * creates one automatically.
      */
     private void ensureSecurityManager() {
+        /*获取securityManager*/
         WebSecurityManager securityManager = getSecurityManager();
         if (securityManager == null) {
             log.info("No SecurityManager configured.  Creating default.");
+            /*不存在则创建一个默认的 默认 DefaultWebSecurityManager */
             securityManager = createDefaultSecurityManager();
             setSecurityManager(securityManager);
         }
@@ -289,6 +293,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      * @since 1.0
      */
     protected WebSubject createSubject(ServletRequest request, ServletResponse response) {
+        /*实例化一个subject上下文，然后创建一个subject*/
         return new WebSubject.Builder(getSecurityManager(), request, response).buildWebSubject();
     }
 
@@ -312,6 +317,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
                 Session session = subject.getSession(false);
                 if (session != null) {
                     try {
+                        /*刷新shiro 的session*/
                         session.touch();
                     } catch (Throwable t) {
                         log.error("session.touch() method invocation has failed.  Unable to update " +
@@ -353,15 +359,18 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
         Throwable t = null;
 
         try {
+            /*转换request，response*/
             final ServletRequest request = prepareServletRequest(servletRequest, servletResponse, chain);
             final ServletResponse response = prepareServletResponse(request, servletResponse, chain);
-
+            /*创建一个subject*/
             final Subject subject = createSubject(request, response);
 
             //noinspection unchecked
             subject.execute(new Callable() {
                 public Object call() throws Exception {
+                    /*如果不是由servlet自己 管理的session，那么会调用touch方法 手动更新session会话上次访问时间*/
                     updateSessionLastAccessTime(request, response);
+                    /*核心逻辑*/
                     executeChain(request, response, chain);
                     return null;
                 }
@@ -406,7 +415,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
     protected FilterChain getExecutionChain(ServletRequest request, ServletResponse response, FilterChain origChain) {
 
         FilterChain chain = origChain;
-
+        /*这里与spring整合时候 默认是 PathMatchingFilterChainResolver */
         FilterChainResolver resolver = getFilterChainResolver();
         if (resolver == null) {
             log.debug("No FilterChainResolver configured.  Returning original FilterChain.");
@@ -414,13 +423,14 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
         }
 
         FilterChain resolved = resolver.getChain(request, response, origChain);
+        /*条件成立：说明根据当前请求地址 在shiro里面找到了对应的filterList*/
         if (resolved != null) {
             log.trace("Resolved a configured FilterChain for the current request.");
             chain = resolved;
         } else {
+            /*走到这里 说明没有在shiro找到合适的 过滤器，直接返回servlet本身自己的过滤器链*/
             log.trace("No FilterChain configured for the current request.  Using the default.");
         }
-
         return chain;
     }
 
@@ -446,7 +456,9 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      */
     protected void executeChain(ServletRequest request, ServletResponse response, FilterChain origChain)
             throws IOException, ServletException {
+        /*筛选出匹配当前请求地址的 过滤器链 可能有匹配的，也有可能没有匹配的*/
         FilterChain chain = getExecutionChain(request, response, origChain);
+        /*这里调用doFilter方法*/
         chain.doFilter(request, response);
     }
 }

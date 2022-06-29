@@ -36,6 +36,7 @@ import java.util.Set;
  *
  * @see org.apache.shiro.realm.AuthenticatingRealm
  * @since 0.9
+ * 简单的认证信息类，既可以获取到 账户凭据加密用的盐，也可以获取到 合并的账户凭据
  */
 public class SimpleAuthenticationInfo implements MergableAuthenticationInfo, SaltedAuthenticationInfo {
 

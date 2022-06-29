@@ -47,22 +47,27 @@ public class ProxiedFilterChain implements FilterChain {
         if (orig == null) {
             throw new NullPointerException("original FilterChain cannot be null.");
         }
+        /*设置servlet原生的 过滤器链*/
         this.orig = orig;
+        /*设置相匹配的filterList*/
         this.filters = filters;
         this.index = 0;
     }
 
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
+        /*条件成立：说明shiro自己的过滤器链 都走完了，需要走servlet自己本身的过滤器链逻辑*/
         if (this.filters == null || this.filters.size() == this.index) {
             //we've reached the end of the wrapped chain, so invoke the original one:
             if (log.isTraceEnabled()) {
                 log.trace("Invoking original filter chain.");
             }
+            /*执行servlet自己的 过滤器链*/
             this.orig.doFilter(request, response);
         } else {
             if (log.isTraceEnabled()) {
                 log.trace("Invoking wrapped filter at index [" + this.index + "]");
             }
+            /*执行shiro自己封装的 过滤器链*/
             this.filters.get(this.index++).doFilter(request, response, this);
         }
     }

@@ -55,6 +55,7 @@ import java.util.Map;
  * @see org.apache.shiro.mgt.SecurityManager#createSubject SecurityManager.createSubject
  * @see org.apache.shiro.mgt.SubjectFactory SubjectFactory
  * @since 1.0
+ * subject上下文 继承了 map集合，
  */
 public interface SubjectContext extends Map<String, Object> {
 

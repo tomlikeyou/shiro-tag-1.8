@@ -56,15 +56,18 @@ public class SubjectThreadState implements ThreadState {
         if (subject == null) {
             throw new IllegalArgumentException("Subject argument cannot be null.");
         }
+        /*保存subject信息*/
         this.subject = subject;
 
         SecurityManager securityManager = null;
+        /*保存securityManager信息*/
         if ( subject instanceof DelegatingSubject) {
             securityManager = ((DelegatingSubject)subject).getSecurityManager();
         }
         if ( securityManager == null) {
             securityManager = ThreadContext.getSecurityManager();
         }
+        /*保存securityManager信息*/
         this.securityManager = securityManager;
     }
 
@@ -94,8 +97,9 @@ public class SubjectThreadState implements ThreadState {
         }
         this.originalResources = ThreadContext.getResources();
         ThreadContext.remove();
-
+        /*将subject 保存到threadLocal里面*/
         ThreadContext.bind(this.subject);
+        /*将securityManager信息保存到threadLocal里面*/
         if (securityManager != null) {
             ThreadContext.bind(securityManager);
         }
@@ -107,7 +111,9 @@ public class SubjectThreadState implements ThreadState {
      * {@code ThreadContext} to ensure the thread state is exactly as it was before binding.
      */
     public void restore() {
+        /*清除当前线程保存的信息*/
         ThreadContext.remove();
+        /*如果存在之前的线程保存的状态信息，则恢复到上一个线程的状态*/
         if (!CollectionUtils.isEmpty(this.originalResources)) {
             ThreadContext.setResources(this.originalResources);
         }

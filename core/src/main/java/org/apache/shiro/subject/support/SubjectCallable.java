@@ -74,14 +74,18 @@ public class SubjectCallable<V> implements Callable<V> {
         if (delegate == null) {
             throw new IllegalArgumentException("Callable delegate instance cannot be null.");
         }
+        /*保存callable*/
         this.callable = delegate;
     }
 
     public V call() throws Exception {
         try {
+            /*将subject securityManager信息绑定到当前线程,通过threadLocal保存起来*/
             threadState.bind();
+            /*调用回调方法*/
             return doCall(this.callable);
         } finally {
+            /*此次请求过滤执行完毕之后 清除当前线程threadLocal保存的信息*/
             threadState.restore();
         }
     }

@@ -80,6 +80,7 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
      * @since 1.3
      */
     public void setEventBus(EventBus eventBus) {
+        /*设置eventbus*/
         this.eventBus = eventBus;
     }
 

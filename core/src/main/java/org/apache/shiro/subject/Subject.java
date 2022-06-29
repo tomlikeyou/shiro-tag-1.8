@@ -633,15 +633,19 @@ public interface Subject {
          * @param securityManager the {@code SecurityManager} to use when building the {@code Subject} instance.
          */
         public Builder(SecurityManager securityManager) {
+            /*非空判断*/
             if (securityManager == null) {
                 throw new NullPointerException("SecurityManager method argument cannot be null.");
             }
+            /*设置securityManager*/
             this.securityManager = securityManager;
+            /*实例化一个 subject上下文*/
             this.subjectContext = newSubjectContextInstance();
             if (this.subjectContext == null) {
                 throw new IllegalStateException("Subject instance returned from 'newSubjectContextInstance' " +
                         "cannot be null.");
             }
+            /*subject上下文保存 securityManager信息*/
             this.subjectContext.setSecurityManager(securityManager);
         }
 

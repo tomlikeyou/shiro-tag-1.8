@@ -85,7 +85,9 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      */
     public DefaultSecurityManager() {
         super();
+        /*设置默认的 subjectFactory*/
         this.subjectFactory = new DefaultSubjectFactory();
+        /*设置默认的 subjectDao*/
         this.subjectDAO = new DefaultSubjectDAO();
     }
 

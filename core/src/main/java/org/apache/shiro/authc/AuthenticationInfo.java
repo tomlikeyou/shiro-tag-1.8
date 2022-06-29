@@ -54,6 +54,7 @@ import java.io.Serializable;
  * @see org.apache.shiro.authz.AuthorizationInfo AuthorizationInfo
  * @see Account
  * @since 0.9
+ * 认证信息接口
  */
 public interface AuthenticationInfo extends Serializable {
 

@@ -45,23 +45,26 @@ import java.util.Set;
  *
  * @see NamedFilterList
  * @since 1.0
+ * 过滤器链管理器
  */
 public class DefaultFilterChainManager implements FilterChainManager {
 
     private static transient final Logger log = LoggerFactory.getLogger(DefaultFilterChainManager.class);
-
+    /*servlet的 filterConfig信息，在配置filter时候，能够给filter添加一些初始化参数信息，这些初始化参数信息保存在这里，如过滤器名称，servlet上下文，根据名称获取值...*/
     private FilterConfig filterConfig;
-
+    /*保存默认的过滤器信息，以及我们自定义配置的过滤器信息*/
     private Map<String, Filter> filters; //pool of filters available for creating chains
-
+    /*全局的过滤器名称集合*/
     private List<String> globalFilterNames; // list of filters to prepend to every chain
-
+    /*配置的url -> authc/anon... 以及 过滤器类型保存在这里*/
     private Map<String, NamedFilterList> filterChains; //key: chain name, value: chain
 
+    /*创建过滤器链管理器时候 会默认将枚举类所有的过滤器都添加到filters*/
     public DefaultFilterChainManager() {
         this.filters = new LinkedHashMap<String, Filter>();
         this.filterChains = new LinkedHashMap<String, NamedFilterList>();
         this.globalFilterNames = new ArrayList<>();
+        /*添加默认的过滤器到 filters中*/
         addDefaultFilters(false);
     }
 
@@ -131,17 +134,18 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     public void createChain(String chainName, String chainDefinition) {
+        /*非空判断*/
         if (!StringUtils.hasText(chainName)) {
             throw new NullPointerException("chainName cannot be null or empty.");
         }
         if (!StringUtils.hasText(chainDefinition)) {
             throw new NullPointerException("chainDefinition cannot be null or empty.");
         }
-
         if (log.isDebugEnabled()) {
             log.debug("Creating chain [" + chainName + "] with global filters " + globalFilterNames + " and from String definition [" + chainDefinition + "]");
         }
 
+        /*首先将全局的过滤器链名称集合里的每一个名称 添加到 我们配置的url 对应的过滤器链中*/
         // first add each of global filters
         if (!CollectionUtils.isEmpty(globalFilterNames)) {
             globalFilterNames.stream().forEach(filterName -> addToChain(chainName, filterName));
@@ -157,8 +161,11 @@ public class DefaultFilterChainManager implements FilterChainManager {
         //
         //     { "authc", "roles[admin,user]", "perms[file:edit]" }
         //
+        /*对我们配置的url对应的 过滤器类型 进行解析 返回对应的数组*/
         String[] filterTokens = splitChainDefinition(chainDefinition);
 
+        /*将我们配置的url-> authc/anon 的value值，从filters获取对应的filter
+         然后保存到url对应的 namedFilterList 中，（因为我们前面已经有了 指定url对应的 namedFilterList）*/
         //each token is specific to each filter.
         //strip the name and extract any filter-specific config between brackets [ ]
         for (String token : filterTokens) {
@@ -262,24 +269,37 @@ public class DefaultFilterChainManager implements FilterChainManager {
     protected void addFilter(String name, Filter filter, boolean init, boolean overwrite) {
         Filter existing = getFilter(name);
         if (existing == null || overwrite) {
+            /*过滤器链如果实现了 nameable接口，则设置名称*/
             if (filter instanceof Nameable) {
                 ((Nameable) filter).setName(name);
             }
             if (init) {
                 initFilter(filter);
             }
+            /*保存过滤器信息到 filters，key：DefaultFilter枚举类的名称，value：具体的过滤器实例对象*/
             this.filters.put(name, filter);
         }
     }
 
+    /*
+    * 参数1：url
+    * 参数2：全局过滤器名称集合 的名称
+    * */
     public void addToChain(String chainName, String filterName) {
         addToChain(chainName, filterName, null);
     }
 
+    /*
+    * 参数1：url
+    * 参数2：全局过滤器名称集合 的名称
+    * 参数3：null
+    * */
     public void addToChain(String chainName, String filterName, String chainSpecificFilterConfig) {
+        /*非空判断*/
         if (!StringUtils.hasText(chainName)) {
             throw new IllegalArgumentException("chainName cannot be null or empty.");
         }
+        /*从 filters中 根据过滤器名称 获取filter过滤器*/
         Filter filter = getFilter(filterName);
         if (filter == null) {
             throw new IllegalArgumentException("There is no filter with name '" + filterName +
@@ -288,8 +308,9 @@ public class DefaultFilterChainManager implements FilterChainManager {
         }
 
         applyChainConfig(chainName, filter, chainSpecificFilterConfig);
-
+        /*返回url对应的 filterList*/
         NamedFilterList chain = ensureChain(chainName);
+        /*向 filterList添加 一个filter*/
         chain.add(filter);
     }
 
@@ -303,6 +324,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
                                                      "' to apply to the global filters in the pool of available Filters.  Ensure a " +
                                                      "filter with that name/path has first been registered with the addFilter method(s).");
                 }
+                /*添加到全局的filter 名称集合里*/
                 this.globalFilterNames.add(filterName);
             }
         }
@@ -329,9 +351,12 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     protected NamedFilterList ensureChain(String chainName) {
+        /*根据请求路径从 filterChains集合中获取 filter*/
         NamedFilterList chain = getChain(chainName);
         if (chain == null) {
+            /*如果为空，则根据 请求路径url创建一个 filterList*/
             chain = new SimpleNamedFilterList(chainName);
+            /*将url-> filterList 保存到 filterChains中*/
             this.filterChains.put(chainName, chain);
         }
         return chain;
@@ -350,12 +375,18 @@ public class DefaultFilterChainManager implements FilterChainManager {
         return this.filterChains != null ? this.filterChains.keySet() : Collections.EMPTY_SET;
     }
 
+    /*
+    * 参数1：servlet原生的过滤器链
+    * 参数2：自定义配置的 匹配的url
+    * */
     public FilterChain proxy(FilterChain original, String chainName) {
+        /*根据url 名称获取对应的chain filter*/
         NamedFilterList configured = getChain(chainName);
         if (configured == null) {
             String msg = "There is no configured chain under the name/key [" + chainName + "].";
             throw new IllegalArgumentException(msg);
         }
+        /*将filterList 包装成 ProxiedFilterChain 返回*/
         return configured.proxy(original);
     }
 

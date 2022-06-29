@@ -83,6 +83,7 @@ public interface WebSubject extends Subject, RequestPairSource {
          *                        with the built {@code WebSubject} instance.
          */
         public Builder(SecurityManager securityManager, ServletRequest request, ServletResponse response) {
+            /*保存securityManager信息*/
             super(securityManager);
             if (request == null) {
                 throw new IllegalArgumentException("ServletRequest argument cannot be null.");
@@ -90,7 +91,9 @@ public interface WebSubject extends Subject, RequestPairSource {
             if (response == null) {
                 throw new IllegalArgumentException("ServletResponse argument cannot be null.");
             }
+            /*subject上下文保存 request 信息*/
             setRequest(request);
+            /*subject上下文保存 response 信息*/
             setResponse(response);
         }
 
@@ -145,6 +148,7 @@ public interface WebSubject extends Subject, RequestPairSource {
          * @return a new {@link WebSubject WebSubject} instance built by this {@code Builder}.
          */
         public WebSubject buildWebSubject() {
+            /*调用securityManager 根据subject上下文 去创建一个subject*/
             Subject subject = super.buildSubject();
             if (!(subject instanceof WebSubject)) {
                 String msg = "Subject implementation returned from the SecurityManager was not a " +

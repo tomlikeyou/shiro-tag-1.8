@@ -107,6 +107,7 @@ public abstract class OncePerRequestFilter extends NameableFilter {
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+        /*从请求头获取信息，判断当前过滤器 是否已经执行过了，条件成立：说明当前过滤器已经执行过了 则 跳过当前过滤器 继续向后执行*/
         if ( request.getAttribute(alreadyFilteredAttributeName) != null ) {
             log.trace("Filter '{}' already executed.  Proceeding without invoking this filter.", getName());
             filterChain.doFilter(request, response);
@@ -119,11 +120,14 @@ public abstract class OncePerRequestFilter extends NameableFilter {
         } else {
             // Do invoke this filter...
             log.trace("Filter '{}' not yet executed.  Executing now.", getName());
+            /*请求头设置信息 代表当前过滤器已经执行，后面代码块是启动过滤器的逻辑*/
             request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
 
             try {
+                /*模板方法*/
                 doFilterInternal(request, response, filterChain);
             } finally {
+                /*一次请求处理完成了，将当前过滤器的请求头信息删除*/
                 // Once the request has finished, we're done and we don't
                 // need to mark as 'already filtered' any more.
                 request.removeAttribute(alreadyFilteredAttributeName);
@@ -206,6 +210,7 @@ public abstract class OncePerRequestFilter extends NameableFilter {
      * @param chain    the {@code FilterChain} to execute
      * @throws ServletException if there is a problem processing the request
      * @throws IOException      if there is an I/O problem processing the request
+     * 抽象方法 交给子类实现
      */
     protected abstract void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
             throws ServletException, IOException;

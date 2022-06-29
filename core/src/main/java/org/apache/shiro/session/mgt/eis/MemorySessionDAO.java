@@ -57,6 +57,7 @@ public class MemorySessionDAO extends AbstractSessionDAO {
 
     private static final Logger log = LoggerFactory.getLogger(MemorySessionDAO.class);
 
+    /*直接在内存里管理session*/
     private ConcurrentMap<Serializable, Session> sessions;
 
     public MemorySessionDAO() {

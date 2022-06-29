@@ -57,6 +57,7 @@ public abstract class AuthorizingSecurityManager extends AuthenticatingSecurityM
      */
     public AuthorizingSecurityManager() {
         super();
+        /*初始化默认的 授权器 -> 多realm 授权器*/
         this.authorizer = new ModularRealmAuthorizer();
     }
 

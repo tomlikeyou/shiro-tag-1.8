@@ -42,6 +42,7 @@ import java.io.Serializable;
  * entirely and just return the data store's ID from the {@link #doCreate} implementation.
  *
  * @since 1.0
+ * 抽象的sessionDao 提供了 sessionId生成器：用于生成会话ID
  */
 public abstract class AbstractSessionDAO implements SessionDAO {
 
@@ -54,6 +55,7 @@ public abstract class AbstractSessionDAO implements SessionDAO {
     /**
      * Default no-arg constructor that defaults the {@link #setSessionIdGenerator sessionIdGenerator} to be a
      * {@link org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator}.
+     * 无参构造函数，默认实例化时候，设置 会话ID生成器 为uuid生成器
      */
     public AbstractSessionDAO() {
         this.sessionIdGenerator = new JavaUuidSessionIdGenerator();
@@ -77,6 +79,7 @@ public abstract class AbstractSessionDAO implements SessionDAO {
      *
      * @param sessionIdGenerator the {@code SessionIdGenerator} to use in the
      *                           {@link #generateSessionId(org.apache.shiro.session.Session)} method.
+     * 设置sessionId 生成器，默认是uuid
      */
     public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
         this.sessionIdGenerator = sessionIdGenerator;

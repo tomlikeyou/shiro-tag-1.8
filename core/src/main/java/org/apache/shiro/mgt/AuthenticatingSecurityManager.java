@@ -55,6 +55,7 @@ public abstract class AuthenticatingSecurityManager extends RealmSecurityManager
      */
     public AuthenticatingSecurityManager() {
         super();
+        /*初始化默认的 认证器 -> 多realm认证器*/
         this.authenticator = new ModularRealmAuthenticator();
     }
 

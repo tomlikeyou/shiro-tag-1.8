@@ -33,7 +33,7 @@ import java.util.*;
  * @since 1.0
  */
 public class SimpleNamedFilterList implements NamedFilterList {
-
+    /*url*/
     private String name;
     private List<Filter> backingList;
 
@@ -65,6 +65,7 @@ public class SimpleNamedFilterList implements NamedFilterList {
     }
 
     protected void setName(String name) {
+        /*非空判断*/
         if (!StringUtils.hasText(name)) {
             throw new IllegalArgumentException("Cannot specify a null or empty name.");
         }
@@ -78,7 +79,7 @@ public class SimpleNamedFilterList implements NamedFilterList {
     public FilterChain proxy(FilterChain orig) {
         return new ProxiedFilterChain(orig, this);
     }
-
+    /*添加一个filter*/
     public boolean add(Filter filter) {
         return this.backingList.add(filter);
     }

@@ -116,6 +116,7 @@ import java.util.Map;
  *
  * @see org.springframework.web.filter.DelegatingFilterProxy DelegatingFilterProxy
  * @since 1.0
+ * 实现了 spring的 factoryBean 跟beanFactory接口，
  */
 public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
 
@@ -138,6 +139,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
     public ShiroFilterFactoryBean() {
         this.filters = new LinkedHashMap<String, Filter>();
         this.globalFilters = new ArrayList<>();
+        /*默认添加全局的filter*/
         this.globalFilters.add(DefaultFilter.invalidRequest.name());
         this.filterChainDefinitionMap = new LinkedHashMap<String, String>(); //order matters!
     }
@@ -157,6 +159,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
      * required property - failure to set it will throw an initialization exception.
      *
      * @param securityManager the application {@code SecurityManager} instance to be used by the constructed Shiro Filter.
+     * 设置securityManager
      */
     public void setSecurityManager(SecurityManager securityManager) {
         this.securityManager = securityManager;
@@ -189,6 +192,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
      * @param loginUrl the application's login URL to apply to as a convenience to all discovered
      *                 {@link AccessControlFilter} instances.
      * @see AccessControlFilter#setLoginUrl(String)
+     * 设置登录的url
      */
     public void setLoginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
@@ -380,7 +384,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
     }
 
     protected FilterChainManager createFilterChainManager() {
-
+        /*实例化默认过滤器链管理器时候  会添加内置的默认一些过滤器 到filters*/
         DefaultFilterChainManager manager = new DefaultFilterChainManager();
         Map<String, Filter> defaultFilters = manager.getFilters();
         //apply global settings if necessary:
@@ -388,6 +392,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
             applyGlobalPropertiesIfNecessary(filter);
         }
 
+        /*将shiroFilterFactoryBean自定义配置的filter信息集合 添加到 过滤器链管理器中*/
         //Apply the acquired and/or configured filters:
         Map<String, Filter> filters = getFilters();
         if (!CollectionUtils.isEmpty(filters)) {
@@ -400,23 +405,28 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
                 }
                 //'init' argument is false, since Spring-configured filters should be initialized
                 //in Spring (i.e. 'init-method=blah') or implement InitializingBean:
+                /*将自定义配置的过滤器信息 保存到过滤器链管理器中*/
                 manager.addFilter(name, filter, false);
             }
         }
 
+        /*给过滤器链管理器 设置全局过滤器名称*/
         // set the global filters
         manager.setGlobalFilters(this.globalFilters);
 
+        /*将手动配置的过滤器规则 添加到 过滤器链管理器中*/
         //build up the chains:
         Map<String, String> chains = getFilterChainDefinitionMap();
         if (!CollectionUtils.isEmpty(chains)) {
             for (Map.Entry<String, String> entry : chains.entrySet()) {
+                /*配置的url：例如：/user/**，/login,/logout */
                 String url = entry.getKey();
+                /*chainDefinition:例如：anon，authc... */
                 String chainDefinition = entry.getValue();
                 manager.createChain(url, chainDefinition);
             }
         }
-
+        /*创建默认的匹配拦截*/
         // create the default chain, to match anything the path matching would have missed
         manager.createDefaultChain("/**"); // TODO this assumes ANT path matching, which might be OK here
 
@@ -455,13 +465,14 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
             String msg = "The security manager does not implement the WebSecurityManager interface.";
             throw new BeanInitializationException(msg);
         }
-
+        /*创建 过滤器链管理器 并将全局的过滤器名称，配置的过滤器规则等 都保存到这里*/
         FilterChainManager manager = createFilterChainManager();
 
         //Expose the constructed FilterChainManager by first wrapping it in a
         // FilterChainResolver implementation. The AbstractShiroFilter implementations
         // do not know about FilterChainManagers - only resolvers:
         PathMatchingFilterChainResolver chainResolver = new PathMatchingFilterChainResolver();
+        /*设置过滤器链管理器*/
         chainResolver.setFilterChainManager(manager);
 
         //Now create a concrete ShiroFilter instance and apply the acquired SecurityManager and built
@@ -471,6 +482,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
         return new SpringShiroFilter((WebSecurityManager) securityManager, chainResolver);
     }
 
+    /*给filter设置 登录url*/
     private void applyLoginUrlIfNecessary(Filter filter) {
         String loginUrl = getLoginUrl();
         if (StringUtils.hasText(loginUrl) && (filter instanceof AccessControlFilter)) {
@@ -519,10 +531,13 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
      * later during filter chain construction.
      */
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        /*如果spring bean实现了 filter接口，那么会给该bean设置一些属性，如：登录url，登陆成功的url，未授权的url*/
         if (bean instanceof Filter) {
             log.debug("Found filter chain candidate filter '{}'", beanName);
             Filter filter = (Filter) bean;
+            /*给bean填充属性*/
             applyGlobalPropertiesIfNecessary(filter);
+            /*保存该filter信息*/
             getFilters().put(beanName, filter);
         } else {
             log.trace("Ignoring non-Filter bean '{}'", beanName);
@@ -554,8 +569,9 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
             if (webSecurityManager == null) {
                 throw new IllegalArgumentException("WebSecurityManager property cannot be null.");
             }
+            /*设置 securityManager*/
             setSecurityManager(webSecurityManager);
-
+            /*设置 FilterChainResolver*/
             if (resolver != null) {
                 setFilterChainResolver(resolver);
             }

@@ -36,6 +36,7 @@ import org.apache.shiro.lang.util.ByteSource;
  * @see org.apache.shiro.authc.credential.HashedCredentialsMatcher
  *
  * @since 1.1
+ * 加盐的认证信息接口，可以返回对凭据 进行加盐的 盐值
  */
 public interface SaltedAuthenticationInfo extends AuthenticationInfo {
 

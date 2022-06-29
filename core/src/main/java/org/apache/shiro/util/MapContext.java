@@ -28,11 +28,13 @@ import java.util.*;
  * @see org.apache.shiro.subject.SubjectContext SubjectContext
  * @see org.apache.shiro.session.mgt.SessionContext SessionContext
  * @since 1.0
+ * map上下文 继承了 map集合
  */
 public class MapContext implements Map<String, Object>, Serializable {
 
     private static final long serialVersionUID = 5373399119017820322L;
 
+    /*subject 上下文 保存数据的地方*/
     private final Map<String, Object> backingMap;
 
     public MapContext() {

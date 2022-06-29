@@ -69,11 +69,15 @@ public class DefaultWebSecurityManager extends DefaultSecurityManager implements
 
     public DefaultWebSecurityManager() {
         super();
-        DefaultWebSessionStorageEvaluator webEvaluator = new DefaultWebSessionStorageEvaluator();  
+        DefaultWebSessionStorageEvaluator webEvaluator = new DefaultWebSessionStorageEvaluator();
+        /*保存 webEvaluator*/
         ((DefaultSubjectDAO) this.subjectDAO).setSessionStorageEvaluator(webEvaluator);
+        /*设置模式 为http模式*/
         this.sessionMode = HTTP_SESSION_MODE;
+        /*设置 subjectFactory*/
         setSubjectFactory(new DefaultWebSubjectFactory());
         setRememberMeManager(new CookieRememberMeManager());
+        /*设置 session管理器为 ServletContainerSessionManager*/
         setSessionManager(new ServletContainerSessionManager());
         webEvaluator.setSessionManager(getSessionManager());
     }
@@ -175,6 +179,7 @@ public class DefaultWebSecurityManager extends DefaultSecurityManager implements
                 log.warn(msg);
             }
         }
+        /*保存session管理器信息，并给session管理器 设置 缓存管理器 eventbus*/
         setInternalSessionManager(sessionManager);
     }
 

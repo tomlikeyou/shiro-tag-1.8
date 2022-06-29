@@ -383,6 +383,7 @@ public class DelegatingSubject implements Subject {
     }
 
     public <V> V execute(Callable<V> callable) throws ExecutionException {
+        /*将callable 封装为 SubjectCallable*/
         Callable<V> associated = associateWith(callable);
         try {
             return associated.call();

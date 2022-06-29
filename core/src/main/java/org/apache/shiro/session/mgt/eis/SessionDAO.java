@@ -38,6 +38,7 @@ import java.util.Collection;
  * frequently, rather than return a massive set and infrequently validate.
  *
  * @since 0.1
+ * sessionDao：对session进行 CRUD
  */
 public interface SessionDAO {
 

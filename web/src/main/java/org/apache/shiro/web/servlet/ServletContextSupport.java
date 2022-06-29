@@ -27,7 +27,7 @@ import javax.servlet.ServletContext;
  */
 public class ServletContextSupport {
 
-    //TODO - complete JavaDoc
+    /*servlet 上下文*/
     private ServletContext servletContext = null;
 
     public ServletContext getServletContext() {
