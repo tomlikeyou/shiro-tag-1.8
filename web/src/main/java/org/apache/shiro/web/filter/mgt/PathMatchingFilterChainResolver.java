@@ -44,6 +44,7 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
 
     private static transient final Logger log = LoggerFactory.getLogger(PathMatchingFilterChainResolver.class);
 
+    /* shiro的过滤器链管理器，在创建SpringShiroFilter时候保存的*/
     private FilterChainManager filterChainManager;
 
     private PatternMatcher pathMatcher;
@@ -94,8 +95,9 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
     }
 
     public FilterChain getChain(ServletRequest request, ServletResponse response, FilterChain originalChain) {
-        /*获取过滤器链管理器*/
+        /*获取shiro的过滤器链管理器*/
         FilterChainManager filterChainManager = getFilterChainManager();
+        /*如果没有项目自定义配置的过滤器规则则返回空*/
         if (!filterChainManager.hasChains()) {
             return null;
         }
@@ -114,7 +116,7 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
                     log.trace("Matched path pattern [{}] for requestURI [{}].  " +
                             "Utilizing corresponding filter chain...", pathPattern, Encode.forHtml(requestURI));
                 }
-                /*获取对应的 filter 包装成 ProxiedFilterChain 返回*/
+                /*获取对应的 filterList 包装成 ProxiedFilterChain 返回*/
                 return filterChainManager.proxy(originalChain, pathPattern);
             } else {
 

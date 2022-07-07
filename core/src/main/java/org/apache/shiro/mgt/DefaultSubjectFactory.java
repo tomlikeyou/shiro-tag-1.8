@@ -37,11 +37,17 @@ public class DefaultSubjectFactory implements SubjectFactory {
     }
 
     public Subject createSubject(SubjectContext context) {
+        /*从subject上下文中 获取securityManager信息*/
         SecurityManager securityManager = context.resolveSecurityManager();
+        /*从subject中获取session信息，可能为null*/
         Session session = context.resolveSession();
+        /*从subject中获取 是否开启创建session信息*/
         boolean sessionCreationEnabled = context.isSessionCreationEnabled();
+        /*尽可能获取凭据信息，可能为null*/
         PrincipalCollection principals = context.resolvePrincipals();
+        /*尽可能获取 是否已认证信息，可能为false*/
         boolean authenticated = context.resolveAuthenticated();
+        /*尽可能获取端口信息，可能为空*/
         String host = context.resolveHost();
 
         return new DelegatingSubject(principals, authenticated, host, session, sessionCreationEnabled, securityManager);

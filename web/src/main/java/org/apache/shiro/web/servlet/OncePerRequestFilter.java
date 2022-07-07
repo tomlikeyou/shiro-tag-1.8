@@ -28,9 +28,7 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 
 /**
- * Filter base class that guarantees to be just executed once per request,
- * on any servlet container. It provides a {@link #doFilterInternal}
- * method with HttpServletRequest and HttpServletResponse arguments.
+ * 过滤器的基类，保证每个请求只在任何 servlet容器上执行一次；确保每个过滤器对一个请求只执行一次（实现方式：request域中添加属性）
  * <p/>
  * The {@link #getAlreadyFilteredAttributeName} method determines how
  * to identify that a request is already filtered. The default implementation
@@ -41,14 +39,10 @@ import java.io.IOException;
  * for any given request.
  * <p/>
  * <b>NOTE</b> This class was initially borrowed from the Spring framework but has continued modifications.
- *
  * @since 0.1
  */
 public abstract class OncePerRequestFilter extends NameableFilter {
 
-    /**
-     * Private internal log instance.
-     */
     private static final Logger log = LoggerFactory.getLogger(OncePerRequestFilter.class);
 
     /**
@@ -59,11 +53,11 @@ public abstract class OncePerRequestFilter extends NameableFilter {
     public static final String ALREADY_FILTERED_SUFFIX = ".FILTERED";
 
     /**
-     * Determines generally if this filter should execute or let requests fall through to the next chain element.
-     *
+     * 明确控制过滤器是否对任何给定请求执行（或允许通过）默认为true，代表都执行
+     * 确定某个过滤器对任何请求是否执行，默认过滤器执行，当不需要某个过滤器对任何请求执行的时候，只需要将该过滤器的该属性设置为false
      * @see #isEnabled()
      */
-    private boolean enabled = true; //most filters wish to execute when configured, so default to true
+    private boolean enabled = true;
 
     /**
      * Returns {@code true} if this filter should <em>generally</em><b>*</b> execute for any request,
@@ -85,11 +79,8 @@ public abstract class OncePerRequestFilter extends NameableFilter {
     }
 
     /**
-     * Sets whether or not this filter <em>generally</em> executes for any request.  See the
-     * {@link #isEnabled() isEnabled()} JavaDoc as to what <em>general</em> execution means.
-     *
-     * @param enabled whether or not this filter <em>generally</em> executes.
-     * @since 1.2
+     * 设置某个过滤器是否对任何请求执行
+     * @param enabled
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -107,29 +98,27 @@ public abstract class OncePerRequestFilter extends NameableFilter {
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
-        /*从请求头获取信息，判断当前过滤器 是否已经执行过了，条件成立：说明当前过滤器已经执行过了 则 跳过当前过滤器 继续向后执行*/
+        /*从请求头获取信息，判断具体的过滤器 是否已经执行过了，条件成立：说明当前过滤器已经执行过了 则跳过当前过滤器，继续向后执行*/
         if ( request.getAttribute(alreadyFilteredAttributeName) != null ) {
             log.trace("Filter '{}' already executed.  Proceeding without invoking this filter.", getName());
             filterChain.doFilter(request, response);
         } else //noinspection deprecation
             if (/* added in 1.2: */ !isEnabled(request, response) ||
                 /* retain backwards compatibility: */ shouldNotFilter(request) ) {
+                /*条件成立：说明该过滤器不需要执行，直接跳过，继续像后执行*/
             log.debug("Filter '{}' is not enabled for the current request.  Proceeding without invoking this filter.",
                     getName());
             filterChain.doFilter(request, response);
         } else {
-            // Do invoke this filter...
+            /*大多数情况，会走这里，执行该过滤器*/
             log.trace("Filter '{}' not yet executed.  Executing now.", getName());
             /*请求头设置信息 代表当前过滤器已经执行，后面代码块是启动过滤器的逻辑*/
             request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
-
             try {
-                /*模板方法*/
+                /*模板方法 提供给子类实现 具体业务地方*/
                 doFilterInternal(request, response, filterChain);
             } finally {
                 /*一次请求处理完成了，将当前过滤器的请求头信息删除*/
-                // Once the request has finished, we're done and we don't
-                // need to mark as 'already filtered' any more.
                 request.removeAttribute(alreadyFilteredAttributeName);
             }
         }
@@ -156,7 +145,7 @@ public abstract class OncePerRequestFilter extends NameableFilter {
      * request/response pass through immediately to the next element in the {@code FilterChain}.
      * @throws IOException in the case of any IO error
      * @throws ServletException in the case of any error
-     * @see org.apache.shiro.web.filter.PathMatchingFilter#isEnabled(javax.servlet.ServletRequest, javax.servlet.ServletResponse, String, Object)
+     * @see org.apache.shiro.web.filter.PathMatchingFilter# isEnabled(javax.servlet.ServletRequest, javax.servlet.ServletResponse, String, Object)
      * @since 1.2
      */
     @SuppressWarnings({"UnusedParameters"})

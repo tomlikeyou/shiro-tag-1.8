@@ -121,19 +121,21 @@ import java.util.Map;
 public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
 
     private static transient final Logger log = LoggerFactory.getLogger(ShiroFilterFactoryBean.class);
-
+    /*安全管理器*/
     private SecurityManager securityManager;
-
+    /*项目配置自定义的过滤器*/
     private Map<String, Filter> filters;
-
+    /*全局的filter名称，配置的每个url拦截请求，都会有全局的拦截器*/
     private List<String> globalFilters;
-
+    /*自定义配置的url->拦截器，通常整合项目会对其进行配置*/
     private Map<String, String> filterChainDefinitionMap; //urlPathExpression_to_comma-delimited-filter-chain-definition
-
+    /*登录地址*/
     private String loginUrl;
+    /*登录成功后的地址*/
     private String successUrl;
+    /*未授权的地址*/
     private String unauthorizedUrl;
-
+    /*filter实例*/
     private AbstractShiroFilter instance;
 
     public ShiroFilterFactoryBean() {
@@ -387,7 +389,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
         /*实例化默认过滤器链管理器时候  会添加内置的默认一些过滤器 到filters*/
         DefaultFilterChainManager manager = new DefaultFilterChainManager();
         Map<String, Filter> defaultFilters = manager.getFilters();
-        //apply global settings if necessary:
+        /*根据需要给过滤器 设置相关属性，如：登录url，登录成功url，未授权的url*/
         for (Filter filter : defaultFilters.values()) {
             applyGlobalPropertiesIfNecessary(filter);
         }
@@ -399,19 +401,18 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
             for (Map.Entry<String, Filter> entry : filters.entrySet()) {
                 String name = entry.getKey();
                 Filter filter = entry.getValue();
+                /*根据需要给内置的过滤器 设置相关属性，如：登录url，登录成功url，未授权的url*/
                 applyGlobalPropertiesIfNecessary(filter);
+                /*自定义配置的filter如何实现了Nameable接口，则保存name属性 */
                 if (filter instanceof Nameable) {
                     ((Nameable) filter).setName(name);
                 }
-                //'init' argument is false, since Spring-configured filters should be initialized
-                //in Spring (i.e. 'init-method=blah') or implement InitializingBean:
-                /*将自定义配置的过滤器信息 保存到过滤器链管理器中*/
+                /*将自定义配置的过滤器 保存到过滤器链管理器中 自定义配置的过滤器如果跟shiro内置的过滤器重复了的话，会将其更新*/
                 manager.addFilter(name, filter, false);
             }
         }
 
-        /*给过滤器链管理器 设置全局过滤器名称*/
-        // set the global filters
+        /*给过滤器链管理器 设置全局的过滤器名称*/
         manager.setGlobalFilters(this.globalFilters);
 
         /*将手动配置的过滤器规则 添加到 过滤器链管理器中*/
@@ -421,7 +422,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
             for (Map.Entry<String, String> entry : chains.entrySet()) {
                 /*配置的url：例如：/user/**，/login,/logout */
                 String url = entry.getKey();
-                /*chainDefinition:例如：anon，authc... */
+                /*chainDefinition:例如：anon，authc... role[user,admin] */
                 String chainDefinition = entry.getValue();
                 manager.createChain(url, chainDefinition);
             }
@@ -450,35 +451,32 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
      *
      * @return a new Shiro Filter reflecting any configured filters and filter chain definitions.
      * @throws Exception if there is a problem creating the AbstractShiroFilter instance.
+     * 返回一个filter实例
      */
     protected AbstractShiroFilter createInstance() throws Exception {
 
         log.debug("Creating Shiro Filter instance.");
-
         SecurityManager securityManager = getSecurityManager();
         if (securityManager == null) {
             String msg = "SecurityManager property must be set.";
             throw new BeanInitializationException(msg);
         }
-
+        /*不是WebSecurityManager接口报异常*/
         if (!(securityManager instanceof WebSecurityManager)) {
             String msg = "The security manager does not implement the WebSecurityManager interface.";
             throw new BeanInitializationException(msg);
         }
-        /*创建 过滤器链管理器 并将全局的过滤器名称，配置的过滤器规则等 都保存到这里*/
+        /*创建 shiro的过滤器链管理器 并将默认的过滤器、配置的过滤器、全局的过滤器名称、配置的过滤器定义规则等 都保存到起来*/
         FilterChainManager manager = createFilterChainManager();
 
         //Expose the constructed FilterChainManager by first wrapping it in a
         // FilterChainResolver implementation. The AbstractShiroFilter implementations
         // do not know about FilterChainManagers - only resolvers:
         PathMatchingFilterChainResolver chainResolver = new PathMatchingFilterChainResolver();
-        /*设置过滤器链管理器*/
+        /*保存刚创建的过滤器链管理器，因为shiroFilter不知道 过滤器链管理器，只知道 chainResolver*/
         chainResolver.setFilterChainManager(manager);
 
-        //Now create a concrete ShiroFilter instance and apply the acquired SecurityManager and built
-        //FilterChainResolver.  It doesn't matter that the instance is an anonymous inner class
-        //here - we're just using it because it is a concrete AbstractShiroFilter instance that accepts
-        //injection of the SecurityManager and FilterChainResolver:
+        /*实例具体的filter*/
         return new SpringShiroFilter((WebSecurityManager) securityManager, chainResolver);
     }
 

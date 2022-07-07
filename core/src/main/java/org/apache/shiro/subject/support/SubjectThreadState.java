@@ -58,7 +58,6 @@ public class SubjectThreadState implements ThreadState {
         }
         /*保存subject信息*/
         this.subject = subject;
-
         SecurityManager securityManager = null;
         /*保存securityManager信息*/
         if ( subject instanceof DelegatingSubject) {
@@ -67,7 +66,6 @@ public class SubjectThreadState implements ThreadState {
         if ( securityManager == null) {
             securityManager = ThreadContext.getSecurityManager();
         }
-        /*保存securityManager信息*/
         this.securityManager = securityManager;
     }
 
@@ -97,7 +95,7 @@ public class SubjectThreadState implements ThreadState {
         }
         this.originalResources = ThreadContext.getResources();
         ThreadContext.remove();
-        /*将subject 保存到threadLocal里面*/
+        /*将subject信息 保存到threadLocal里面*/
         ThreadContext.bind(this.subject);
         /*将securityManager信息保存到threadLocal里面*/
         if (securityManager != null) {

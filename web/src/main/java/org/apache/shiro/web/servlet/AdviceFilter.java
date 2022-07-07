@@ -33,7 +33,7 @@ import java.io.IOException;
  * {@link #postHandle(javax.servlet.ServletRequest, javax.servlet.ServletResponse) postHandle},
  * and {@link #afterCompletion(javax.servlet.ServletRequest, javax.servlet.ServletResponse, Exception) afterCompletion}
  * hooks.
- *
+ * 过滤器类似于 spring aop开启了环绕通知，提供 preHandle、postHandle、afterCompletion钩子
  * @since 0.9
  */
 public abstract class AdviceFilter extends OncePerRequestFilter {
@@ -44,10 +44,9 @@ public abstract class AdviceFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(AdviceFilter.class);
 
     /**
-     * Returns {@code true} if the filter chain should be allowed to continue, {@code false} otherwise.
-     * It is called before the chain is actually consulted/executed.
+     * 如果应该允许过滤器链继续，则返回 true，否则返回 false。它在链实际被执行之前被调用
      * <p/>
-     * The default implementation returns {@code true} always and exists as a template method for subclasses.
+     * 默认实现总是返回 true 并且作为子类的模板方法存在
      *
      * @param request  the incoming ServletRequest
      * @param response the outgoing ServletResponse
@@ -117,26 +116,25 @@ public abstract class AdviceFilter extends OncePerRequestFilter {
      *
      * @param request  the incoming ServletRequest
      * @param response the outgoing ServletResponse
-     * @param chain    the filter chain to execute
-     * @throws ServletException if a servlet-related error occurs
-     * @throws IOException      if an IO error occurs
+     * @param chain    the filter chain to execute servlet容器的过滤器链
+     * @throws ServletException 如果发生与servlet相关的错误
+     * @throws IOException      如果发生IO错误
      */
     public void doFilterInternal(ServletRequest request, ServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-
         Exception exception = null;
-
         try {
-
+            /*钩子*/
+            /*返回true:链继续执行，可以到达真正的controller接口，反之表示 该请求的过滤器链就结束了*/
             boolean continueChain = preHandle(request, response);
             if (log.isTraceEnabled()) {
                 log.trace("Invoked preHandle method.  Continuing chain?: [" + continueChain + "]");
             }
-
+            /*条件成立：让过滤器链继续向下执行*/
             if (continueChain) {
                 executeChain(request, response, chain);
             }
-
+            /*钩子*/
             postHandle(request, response);
             if (log.isTraceEnabled()) {
                 log.trace("Successfully invoked postHandle method");
@@ -169,6 +167,7 @@ public abstract class AdviceFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Exception exception = existing;
         try {
+            /*钩子*/
             afterCompletion(request, response, exception);
             if (log.isTraceEnabled()) {
                 log.trace("Successfully invoked afterCompletion method.");

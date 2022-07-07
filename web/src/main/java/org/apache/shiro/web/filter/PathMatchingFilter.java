@@ -36,14 +36,11 @@ import static org.apache.shiro.lang.util.StringUtils.split;
 
 /**
  * <p>Base class for Filters that will process only specified paths and allow all others to pass through.</p>
- *
+ * 该过滤器只对配置了url请求拦截的地址进行过滤，其他的url请求直接放行
  * @since 0.9
  */
 public abstract class PathMatchingFilter extends AdviceFilter implements PathConfigProcessor {
 
-    /**
-     * Log available to this class only
-     */
     private static final Logger log = LoggerFactory.getLogger(PathMatchingFilter.class);
 
     private static final String DEFAULT_PATH_SEPARATOR = "/";
@@ -54,12 +51,11 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
     protected PatternMatcher pathMatcher = new AntPathMatcher();
 
     /**
-     * A collection of path-to-config entries where the key is a path which this filter should process and
-     * the value is the (possibly null) configuration element specific to this Filter for that specific path.
+     * url->配置 集合，其中键是此过滤器应处理的路径(url)，值是特定于该特定路径(url)的此过滤器的（可能为 null）配置元素
+     * 换句话说，键是这个过滤器将处理的路径（url）
      * <p/>
-     * <p>To put it another way, the keys are the paths (urls) that this Filter will process.
-     * <p>The values are filter-specific data that this Filter should use when processing the corresponding
-     * key (path).  The values can be null if no Filter-specific config was specified for that url.
+     * 这些值是此过滤器在处理相应键（路径）时应使用的过滤器特定数据。如果没有为该 url 指定过滤器特定的配置，则这些值可以为 null
+     * 如 /user/Edit -> role[user,admin]这样的配置 appliedPaths保存的是 key:/user/Edit ;  value: user,admin
      */
     protected Map<String, Object> appliedPaths = new LinkedHashMap<String, Object>();
 
@@ -86,7 +82,7 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
         if (config != null) {
             values = split(config);
         }
-
+        /*每个过滤器都会保存自己需要处理的url，已经对应的（可能为空的）配置信息*/
         this.appliedPaths.put(path, values);
         return this;
     }
@@ -181,7 +177,7 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
      * @throws Exception if an error occurs
      */
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-
+        /*如果该过滤器没有需要处理的url请求，则不会对请求进行过滤，返回true让链继续向下执行*/
         if (this.appliedPaths == null || this.appliedPaths.isEmpty()) {
             if (log.isTraceEnabled()) {
                 log.trace("appliedPaths property is null or empty.  This Filter will passthrough immediately.");
@@ -189,12 +185,14 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
             return true;
         }
 
+        /*遍历该过滤器要处理的每一个url*/
         for (String path : this.appliedPaths.keySet()) {
-            // If the path does match, then pass on to the subclass implementation for specific checks
-            //(first match 'wins'):
+            /*如果当前url与当前请求路径匹配，代表该过滤器需要处理该*/
             if (pathsMatch(path, request)) {
                 log.trace("Current requestURI matches pattern '{}'.  Determining filter chain execution...", path);
+                /*获取该url对应（可能为空）的配置*/
                 Object config = this.appliedPaths.get(path);
+                /*由该过滤器决定是否让链继续向下执行*/
                 return isFilterChainContinued(request, response, path, config);
             }
         }
@@ -203,49 +201,39 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
         return true;
     }
 
-    /**
-     * Simple method to abstract out logic from the preHandle implementation - it was getting a bit unruly.
-     *
-     * @since 1.2
-     */
+    /*
+    * 参数1：request
+    * 参数2：response
+    * 参数3：项目配置的url
+    * 参数4：项目配置url对应的配置(可能为空)
+    * */
     @SuppressWarnings({"JavaDoc"})
     private boolean isFilterChainContinued(ServletRequest request, ServletResponse response,
                                            String path, Object pathConfig) throws Exception {
-
+        /*判断该过滤器是否开启了过滤属性 大多数过滤器都会对任何请求进行过滤执行*/
         if (isEnabled(request, response, path, pathConfig)) { //isEnabled check added in 1.2
             if (log.isTraceEnabled()) {
                 log.trace("Filter '{}' is enabled for the current request under path '{}' with config [{}].  " +
                         "Delegating to subclass implementation for 'onPreHandle' check.",
                         new Object[]{getName(), path, pathConfig});
             }
-            //The filter is enabled for this specific request, so delegate to subclass implementations
-            //so they can decide if the request should continue through the chain or not:
+            /*委托给子类实现，以便他们可以决定请求是否应该继续通过链*/
             return onPreHandle(request, response, pathConfig);
         }
-
+        /*走到这里，表明该过滤器并没有开启过滤，不会处理请求; 则直接返回true，让链继续向后走*/
         if (log.isTraceEnabled()) {
             log.trace("Filter '{}' is disabled for the current request under path '{}' with config [{}].  " +
                     "The next element in the FilterChain will be called immediately.",
                     new Object[]{getName(), path, pathConfig});
         }
-        //This filter is disabled for this specific request,
-        //return 'true' immediately to indicate that the filter will not process the request
-        //and let the request/response to continue through the filter chain:
         return true;
     }
 
-    /**
-     * This default implementation always returns {@code true} and should be overridden by subclasses for custom
-     * logic if necessary.
-     *
-     * @param request     the incoming ServletRequest
-     * @param response    the outgoing ServletResponse
-     * @param mappedValue the filter-specific config value mapped to this filter in the URL rules mappings.
-     * @return {@code true} if the request should be able to continue, {@code false} if the filter will
-     *         handle the response directly.
-     * @throws Exception if an error occurs
-     * @see #isEnabled(javax.servlet.ServletRequest, javax.servlet.ServletResponse, String, Object)
-     */
+    /*默认返回true，代表对请求不进行拦截处理，继续向后执行*/
+    /*参数1：request
+    * 参数2：response
+    * 参数3：项目配置url对应的配置（可能为空）
+    * */
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
         return true;
     }

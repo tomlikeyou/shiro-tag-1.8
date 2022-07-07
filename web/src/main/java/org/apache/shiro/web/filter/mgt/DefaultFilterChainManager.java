@@ -59,7 +59,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
     /*配置的url -> authc/anon... 以及 过滤器类型保存在这里*/
     private Map<String, NamedFilterList> filterChains; //key: chain name, value: chain
 
-    /*创建过滤器链管理器时候 会默认将枚举类所有的过滤器都添加到filters*/
+    /*创建shiro 过滤器链管理器时 会默认加载 DefaultFilter 所有的过滤器添加到filters*/
     public DefaultFilterChainManager() {
         this.filters = new LinkedHashMap<String, Filter>();
         this.filterChains = new LinkedHashMap<String, NamedFilterList>();
@@ -125,6 +125,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     public void createDefaultChain(String chainName) {
+        /*如果项目没有配置 /** 的拦截规则，shiro默认保存一个/** -> 全局过滤器的 到 filterChains中*/
         // only create the defaultChain if we don't have a chain with this name already
         // (the global filters will already be in that chain)
         if (!getChainNames().contains(chainName) && !CollectionUtils.isEmpty(globalFilterNames)) {
@@ -133,6 +134,11 @@ public class DefaultFilterChainManager implements FilterChainManager {
         }
     }
 
+    /**
+     *
+     * @param chainName       url
+     * @param chainDefinition 过滤器的名称
+     */
     public void createChain(String chainName, String chainDefinition) {
         /*非空判断*/
         if (!StringUtils.hasText(chainName)) {
@@ -145,8 +151,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
             log.debug("Creating chain [" + chainName + "] with global filters " + globalFilterNames + " and from String definition [" + chainDefinition + "]");
         }
 
-        /*首先将全局的过滤器链名称集合里的每一个名称 添加到 我们配置的url 对应的过滤器链中*/
-        // first add each of global filters
+        /*首先将全局的过滤器链名称集合里的每一个名称 从filters找到，添加到 我们配置的url 对应的过滤器链中*/
         if (!CollectionUtils.isEmpty(globalFilterNames)) {
             globalFilterNames.stream().forEach(filterName -> addToChain(chainName, filterName));
         }
@@ -166,12 +171,10 @@ public class DefaultFilterChainManager implements FilterChainManager {
 
         /*将我们配置的url-> authc/anon 的value值，从filters获取对应的filter
          然后保存到url对应的 namedFilterList 中，（因为我们前面已经有了 指定url对应的 namedFilterList）*/
-        //each token is specific to each filter.
-        //strip the name and extract any filter-specific config between brackets [ ]
         for (String token : filterTokens) {
             String[] nameConfigPair = toNameConfigPair(token);
 
-            //now we have the filter name, path and (possibly null) path-specific config.  Let's apply them:
+            //现在我们有了过滤器名称、路径和（可能为空的）路径特定的配置，保存起来
             addToChain(chainName, nameConfigPair[0], nameConfigPair[1]);
         }
     }
@@ -222,7 +225,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
      * @see <a href="https://issues.apache.org/jira/browse/SHIRO-205">SHIRO-205</a>
      */
     protected String[] toNameConfigPair(String token) throws ConfigurationException {
-
+        /*roles[admin,user]转换后 会变成 roles admin,user*/
         try {
             String[] pair = token.split("\\[", 2);
             String name = StringUtils.clean(pair[0]);
@@ -269,7 +272,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
     protected void addFilter(String name, Filter filter, boolean init, boolean overwrite) {
         Filter existing = getFilter(name);
         if (existing == null || overwrite) {
-            /*过滤器链如果实现了 nameable接口，则设置名称*/
+            /*过滤器如果实现了 nameable接口，则设置名称*/
             if (filter instanceof Nameable) {
                 ((Nameable) filter).setName(name);
             }
@@ -299,23 +302,22 @@ public class DefaultFilterChainManager implements FilterChainManager {
         if (!StringUtils.hasText(chainName)) {
             throw new IllegalArgumentException("chainName cannot be null or empty.");
         }
-        /*从 filters中 根据过滤器名称 获取filter过滤器*/
+        /*从 filters中 根据过滤器名称 获取对应的过滤器*/
         Filter filter = getFilter(filterName);
         if (filter == null) {
             throw new IllegalArgumentException("There is no filter with name '" + filterName +
                     "' to apply to chain [" + chainName + "] in the pool of available Filters.  Ensure a " +
                     "filter with that name/path has first been registered with the addFilter method(s).");
         }
-
+        /*过滤器保存url 以及url对应的（可能为null）配置*/
         applyChainConfig(chainName, filter, chainSpecificFilterConfig);
         /*返回url对应的 filterList*/
         NamedFilterList chain = ensureChain(chainName);
-        /*向 filterList添加 一个filter*/
+        /*向url对应的filterList添加一个过滤器*/
         chain.add(filter);
     }
 
     public void setGlobalFilters(List<String> globalFilterNames) throws ConfigurationException {
-        // validate each filter name
         if (!CollectionUtils.isEmpty(globalFilterNames)) {
             for (String filterName : globalFilterNames) {
                 Filter filter = filters.get(filterName);
@@ -330,12 +332,21 @@ public class DefaultFilterChainManager implements FilterChainManager {
         }
     }
 
+    /**
+     *
+     * @param chainName url
+     * @param filter 对应的过滤器
+     * @param chainSpecificFilterConfig url对应的过滤器的配置
+     *                                  如配置了这样一个 /userEdit -> role[user,admin] 这样的配置表明该接口 需要user，admin角色才能访问，chainSpecificFilterConfig就是指的是 user,admin
+     */
     protected void applyChainConfig(String chainName, Filter filter, String chainSpecificFilterConfig) {
         if (log.isDebugEnabled()) {
             log.debug("Attempting to apply path [" + chainName + "] to filter [" + filter + "] " +
                     "with config [" + chainSpecificFilterConfig + "]");
         }
+        /*过滤器如果实现了 PathConfigProcessor接口，调用processPathConfig方法*/
         if (filter instanceof PathConfigProcessor) {
+            /*这步表明了 每一个过滤器都保存了需要自己处理的url 以及url 对应的（可能为空）配置，（有的接口需要具体的角色，具体的权限）*/
             ((PathConfigProcessor) filter).processPathConfig(chainName, chainSpecificFilterConfig);
         } else {
             if (StringUtils.hasText(chainSpecificFilterConfig)) {
@@ -354,7 +365,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
         /*根据请求路径从 filterChains集合中获取 filter*/
         NamedFilterList chain = getChain(chainName);
         if (chain == null) {
-            /*如果为空，则根据 请求路径url创建一个 filterList*/
+            /*如果为空，则根据 url创建一个 filterList*/
             chain = new SimpleNamedFilterList(chainName);
             /*将url-> filterList 保存到 filterChains中*/
             this.filterChains.put(chainName, chain);
@@ -376,11 +387,11 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     /*
-    * 参数1：servlet原生的过滤器链
+    * 参数1：servlet容器的过滤器链
     * 参数2：自定义配置的 匹配的url
     * */
     public FilterChain proxy(FilterChain original, String chainName) {
-        /*根据url 名称获取对应的chain filter*/
+        /*根据url 名称从filterChains中获取对应的filter集合*/
         NamedFilterList configured = getChain(chainName);
         if (configured == null) {
             String msg = "There is no configured chain under the name/key [" + chainName + "].";

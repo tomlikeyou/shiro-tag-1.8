@@ -95,6 +95,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
     }
 
     public SecurityManager resolveSecurityManager() {
+        /*从subject上下文中 获取securityManager信息*/
         SecurityManager securityManager = getSecurityManager();
         if (securityManager == null) {
             if (log.isDebugEnabled()) {
@@ -143,6 +144,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
     }
 
     public PrincipalCollection resolvePrincipals() {
+        /*获取凭据信息，按照subject上下文、认证信息、subject、session顺序*/
         PrincipalCollection principals = getPrincipals();
 
         if (isEmpty(principals)) {
@@ -181,9 +183,11 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
     }
 
     public Session resolveSession() {
+        /*从subject上下文获取 session信息*/
         Session session = getSession();
         if (session == null) {
             //try the Subject if it exists:
+            /*尝试从subject中获取*/
             Subject existingSubject = getSubject();
             if (existingSubject != null) {
                 session = existingSubject.getSession(false);
@@ -192,6 +196,9 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         return session;
     }
 
+    /*从subject上下文中 获取信息，是否要开启创建session
+    * true：开启创建session，反之不开启
+    * */
     public boolean isSessionCreationEnabled() {
         Boolean val = getTypedValue(SESSION_CREATION_ENABLED, Boolean.class);
         return val == null || val;

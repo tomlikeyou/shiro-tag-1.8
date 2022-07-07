@@ -294,6 +294,11 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      */
     protected WebSubject createSubject(ServletRequest request, ServletResponse response) {
         /*实例化一个subject上下文，然后创建一个subject*/
+        /*
+        * 分为两步：
+        * 1. 创建一个subject上下文，保存securityManager，request，response信息
+        * 2. securityManager根据subject上下文 创建一个subject
+        * */
         return new WebSubject.Builder(getSecurityManager(), request, response).buildWebSubject();
     }
 
@@ -355,22 +360,20 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      */
     protected void doFilterInternal(ServletRequest servletRequest, ServletResponse servletResponse, final FilterChain chain)
             throws ServletException, IOException {
-
         Throwable t = null;
-
         try {
-            /*转换request，response*/
+            /*转换shiro的request，response*/
             final ServletRequest request = prepareServletRequest(servletRequest, servletResponse, chain);
             final ServletResponse response = prepareServletResponse(request, servletResponse, chain);
             /*创建一个subject*/
             final Subject subject = createSubject(request, response);
 
-            //noinspection unchecked
+            /*将subject、securityManager信息保存到threadLocal里面*/
             subject.execute(new Callable() {
                 public Object call() throws Exception {
                     /*如果不是由servlet自己 管理的session，那么会调用touch方法 手动更新session会话上次访问时间*/
                     updateSessionLastAccessTime(request, response);
-                    /*核心逻辑*/
+                    /*过滤器核心逻辑*/
                     executeChain(request, response, chain);
                     return null;
                 }
@@ -428,7 +431,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
             log.trace("Resolved a configured FilterChain for the current request.");
             chain = resolved;
         } else {
-            /*走到这里 说明没有在shiro找到合适的 过滤器，直接返回servlet本身自己的过滤器链*/
+            /*走到这里 说明没有在shiro找到合适的 过滤器，直接返回servlet容器自己的过滤器链*/
             log.trace("No FilterChain configured for the current request.  Using the default.");
         }
         return chain;
@@ -446,10 +449,10 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      * FilterChain chain = {@link #getExecutionChain}(request, response, origChain);
      * chain.{@link FilterChain#doFilter doFilter}(request,response);</pre>
      *
-     * @param request   the incoming ServletRequest
-     * @param response  the outgoing ServletResponse
+     * @param request   the incoming ServletRequest request
+     * @param response  the outgoing ServletResponse response
      * @param origChain the Servlet Container-provided chain that may be wrapped further by an application-configured
-     *                  chain of Filters.
+     *                  chain of Filters. servlet容器的过滤器链
      * @throws IOException      if the underlying {@code chain.doFilter} call results in an IOException
      * @throws ServletException if the underlying {@code chain.doFilter} call results in a ServletException
      * @since 1.0

@@ -51,14 +51,19 @@ import javax.servlet.http.HttpServletRequest;
  * <p/>
  * <p>If you would prefer to handle the authentication validation and login in your own code, consider using the
  * {@link PassThruAuthenticationFilter} instead, which allows requests to the
- * {@link #loginUrl} to pass through to your application's code directly.
+ * {@link # loginUrl} to pass through to your application's code directly.
  *
  * @see PassThruAuthenticationFilter
+ *
+ * FormAuthenticationFilter实现了认证失败后的处理逻辑，即用户在未登录情况下处理的后续操作，
+ * 如果用户是一个非登录请求，那么会直接重定向到登录页面（即配置中的loginUrl页面），
+ * 如果是一个登录请求，且是GET请求，那么直接放行登录请求，
+ * 如果是POST请求，则会从请求中获取默认的username,password等信息去尝试登录，
+ *  如果登录成功，则由过滤器直接重定向到登录成功的url上去，并拦截掉用户的请求。
+ *  如果登录失败，将失败信息写入到request中去，key值为shiroLoginFailure,然后返回true，过滤器放行，直接到达用户请求的地址，我们就可以在这个请求地址中取到登录失败的数据做相应的操作了
  * @since 0.9
  */
 public class FormAuthenticationFilter extends AuthenticatingFilter {
-
-    //TODO - complete JavaDoc
 
     public static final String DEFAULT_ERROR_KEY_ATTRIBUTE_NAME = "shiroLoginFailure";
 
@@ -145,14 +150,21 @@ public class FormAuthenticationFilter extends AuthenticatingFilter {
         this.failureKeyAttribute = failureKeyAttribute;
     }
 
+    /*
+    * 该方法什么时候被调用？在 AccessControlFilter#isAccessAllowed 方法返回false，也就是用户未登录前提下被调用
+    * */
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+        /*条件成立：说明当前请求是登录页面请求*/
         if (isLoginRequest(request, response)) {
+            /*条件成立：说明登录请求是一个post请求，说明该请求带了参数：比如 用户名密码，是实际登录的接口*/
             if (isLoginSubmission(request, response)) {
                 if (log.isTraceEnabled()) {
                     log.trace("Login submission detected.  Attempting to execute login.");
                 }
+                /*则直接执行登录逻辑就好了*/
                 return executeLogin(request, response);
             } else {
+                /*条件成立：说明当前请求只是跳转到登录页的请求，返回true，让链继续向后执行*/
                 if (log.isTraceEnabled()) {
                     log.trace("Login page view.");
                 }
@@ -160,11 +172,12 @@ public class FormAuthenticationFilter extends AuthenticatingFilter {
                 return true;
             }
         } else {
+            /*走到这里，说明当前请求地址不是登录的地址，前提是没有登录，那么直接跳到登录页面去*/
             if (log.isTraceEnabled()) {
                 log.trace("Attempting to access a path which requires authentication.  Forwarding to the " +
                         "Authentication url [" + getLoginUrl() + "]");
             }
-
+            /*重定向到登录页*/
             saveRequestAndRedirectToLogin(request, response);
             return false;
         }
@@ -193,6 +206,7 @@ public class FormAuthenticationFilter extends AuthenticatingFilter {
         return WebUtils.isTrue(request, getRememberMeParam());
     }
 
+    /*重定向到登录成功页*/
     protected boolean onLoginSuccess(AuthenticationToken token, Subject subject,
                                      ServletRequest request, ServletResponse response) throws Exception {
         issueSuccessRedirect(request, response);
@@ -200,6 +214,7 @@ public class FormAuthenticationFilter extends AuthenticatingFilter {
         return false;
     }
 
+    /*将失败信息保存到request域*/
     protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e,
                                      ServletRequest request, ServletResponse response) {
         if (log.isDebugEnabled()) {

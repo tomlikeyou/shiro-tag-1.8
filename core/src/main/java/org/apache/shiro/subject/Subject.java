@@ -637,7 +637,7 @@ public interface Subject {
             if (securityManager == null) {
                 throw new NullPointerException("SecurityManager method argument cannot be null.");
             }
-            /*设置securityManager*/
+            /*保存securityManager*/
             this.securityManager = securityManager;
             /*实例化一个 subject上下文*/
             this.subjectContext = newSubjectContextInstance();
@@ -652,7 +652,7 @@ public interface Subject {
         /**
          * Creates a new {@code SubjectContext} instance to be used to populate with subject contextual data that
          * will then be sent to the {@code SecurityManager} to create a new {@code Subject} instance.
-         *
+         * 创建一个默认的subject上下文
          * @return a new {@code SubjectContext} instance
          */
         protected SubjectContext newSubjectContextInstance() {
@@ -846,6 +846,7 @@ public interface Subject {
          *         other methods in this class.
          */
         public Subject buildSubject() {
+            /*securityManager根据subject上下文来创建一个subject*/
             return this.securityManager.createSubject(this.subjectContext);
         }
     }

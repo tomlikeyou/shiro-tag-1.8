@@ -84,7 +84,7 @@ public class DelegatingSubject implements Subject {
      * @since 1.2
      */
     protected boolean sessionCreationEnabled;
-
+    /*创建subject时候会保存securityManager信息*/
     protected transient SecurityManager securityManager;
 
     public DelegatingSubject(SecurityManager securityManager) {
@@ -256,6 +256,7 @@ public class DelegatingSubject implements Subject {
         securityManager.checkRoles(getPrincipals(), roles);
     }
 
+    /*shiro 登录逻辑*/
     public void login(AuthenticationToken token) throws AuthenticationException {
         clearRunAsIdentitiesInternal();
         Subject subject = securityManager.login(this, token);

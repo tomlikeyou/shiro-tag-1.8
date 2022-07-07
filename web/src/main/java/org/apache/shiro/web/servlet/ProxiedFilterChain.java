@@ -32,11 +32,9 @@ import java.util.List;
  * {@code FilterChain} instance.
  *
  * @since 0.9
+ * 实现了servlet容器的 过滤器链接口
  */
 public class ProxiedFilterChain implements FilterChain {
-
-    //TODO - complete JavaDoc
-
     private static final Logger log = LoggerFactory.getLogger(ProxiedFilterChain.class);
 
     private FilterChain orig;
@@ -47,9 +45,9 @@ public class ProxiedFilterChain implements FilterChain {
         if (orig == null) {
             throw new NullPointerException("original FilterChain cannot be null.");
         }
-        /*设置servlet原生的 过滤器链*/
+        /*保存servlet容器原生的 过滤器链*/
         this.orig = orig;
-        /*设置相匹配的filterList*/
+        /*保存shiro 根据url匹配的filterList*/
         this.filters = filters;
         this.index = 0;
     }

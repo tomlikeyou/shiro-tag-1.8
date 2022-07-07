@@ -26,15 +26,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 /**
- * Base class for all Filters that require the current user to be authenticated. This class encapsulates the
- * logic of checking whether a user is already authenticated in the system while subclasses are required to perform
- * specific logic for unauthenticated requests.
+ * 需要对当前用户进行身份验证的所有过滤器的基类。
+ * 该类封装了检查用户是否已在系统中通过身份验证的逻辑，而子类则需要为未经身份验证的请求执行特定的逻辑
  *
  * @since 0.9
+ * 实现了 父类 isAccessAllowed 方法，如果用户已认证（已登录）则过滤器直接放行，继续向后执行过滤器链，如果用户没有认证，则交给子类 onAccessDenied 方法处理后续逻辑
  */
 public abstract class AuthenticationFilter extends AccessControlFilter {
-
-    //TODO - complete JavaDoc
 
     public static final String DEFAULT_SUCCESS_URL = "/";
 
@@ -68,13 +66,7 @@ public abstract class AuthenticationFilter extends AccessControlFilter {
 
 
     /**
-     * Determines whether the current subject is authenticated.
-     * <p/>
-     * The default implementation {@link #getSubject(javax.servlet.ServletRequest, javax.servlet.ServletResponse) acquires}
-     * the currently executing Subject and then returns
-     * {@link org.apache.shiro.subject.Subject#isAuthenticated() subject.isAuthenticated()};
-     *
-     * @return true if the subject is authenticated; false if the subject is unauthenticated
+     * 当前用户已经登录返回true；反之返回false
      */
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
         Subject subject = getSubject(request, response);

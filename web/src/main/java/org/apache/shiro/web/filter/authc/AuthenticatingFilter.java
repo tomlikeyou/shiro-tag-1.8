@@ -39,9 +39,8 @@ import java.util.Arrays;
 public abstract class AuthenticatingFilter extends AuthenticationFilter {
     public static final String PERMISSIVE = "permissive";
 
-    //TODO - complete JavaDoc
-
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
+        /*从请求头获取username pwd等信息来创建一个token*/
         AuthenticationToken token = createToken(request, response);
         if (token == null) {
             String msg = "createToken method implementation returned null. A valid non-null AuthenticationToken " +
@@ -50,9 +49,12 @@ public abstract class AuthenticatingFilter extends AuthenticationFilter {
         }
         try {
             Subject subject = getSubject(request, response);
+            /*调用登录接口*/
             subject.login(token);
+            /*登录成功之后 重定向到成功页，实现在子类*/
             return onLoginSuccess(token, subject, request, response);
         } catch (AuthenticationException e) {
+            /*登录失败将异常信息保存到request中，实现在子类*/
             return onLoginFailure(token, e, request, response);
         }
     }
@@ -70,9 +72,8 @@ public abstract class AuthenticatingFilter extends AuthenticationFilter {
                                               boolean rememberMe, String host) {
         return new UsernamePasswordToken(username, password, rememberMe, host);
     }
-
-    protected boolean onLoginSuccess(AuthenticationToken token, Subject subject,
-                                     ServletRequest request, ServletResponse response) throws Exception {
+    /*模板方法，交给子类覆盖实现 登录成功之后逻辑*/
+    protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request, ServletResponse response) throws Exception {
         return true;
     }
 

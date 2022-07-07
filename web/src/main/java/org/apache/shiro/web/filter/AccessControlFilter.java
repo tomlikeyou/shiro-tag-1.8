@@ -1,21 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 package org.apache.shiro.web.filter;
 
 import org.apache.shiro.SecurityUtils;
@@ -33,12 +15,14 @@ import java.io.IOException;
  * which is used by many subclasses as the behavior when a user is unauthenticated.
  *
  * @since 0.9
+ * 如果用户没有经过认证（登录），那么这个过滤器就是控制访问资源和用户重定向到登录页面的过滤器的父类；
+ * 通过 saveRequestAndRedirectToLogin 方法重定向到登录页
+ * 该接口实现了PathMatchingFilter# onPreHandle方法
  */
 public abstract class AccessControlFilter extends PathMatchingFilter {
 
     /**
-     * Simple default login URL equal to <code>/login.jsp</code>, which can be overridden by calling the
-     * {@link #setLoginUrl(String) setLoginUrl} method.
+     * 默认登录页的地址
      */
     public static final String DEFAULT_LOGIN_URL = "/login.jsp";
 
@@ -53,7 +37,7 @@ public abstract class AccessControlFilter extends PathMatchingFilter {
     public static final String POST_METHOD = "POST";
 
     /**
-     * The login url to used to authenticate a user, used when redirecting users if authentication is required.
+     * 登录页面的地址
      */
     private String loginUrl = DEFAULT_LOGIN_URL;
 
@@ -110,6 +94,7 @@ public abstract class AccessControlFilter extends PathMatchingFilter {
      *         request should be processed by this filter's
      *         {@link #onAccessDenied(ServletRequest,ServletResponse,Object)} method instead.
      * @throws Exception if an error occurs during processing.
+     *
      */
     protected abstract boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception;
 
@@ -146,19 +131,17 @@ public abstract class AccessControlFilter extends PathMatchingFilter {
      */
     protected abstract boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception;
 
-    /**
-     * Returns <code>true</code> if
-     * {@link #isAccessAllowed(ServletRequest,ServletResponse,Object) isAccessAllowed(Request,Response,Object)},
-     * otherwise returns the result of
-     * {@link #onAccessDenied(ServletRequest,ServletResponse,Object) onAccessDenied(Request,Response,Object)}.
-     *
-     * @return <code>true</code> if
-     *         {@link #isAccessAllowed(javax.servlet.ServletRequest, javax.servlet.ServletResponse, Object) isAccessAllowed},
-     *         otherwise returns the result of
-     *         {@link #onAccessDenied(javax.servlet.ServletRequest, javax.servlet.ServletResponse) onAccessDenied}.
-     * @throws Exception if an error occurs.
-     */
+    /*
+     * 参数1：request
+     * 参数2：response
+     * 参数3：项目配置url对应的配置（可能为空）
+     * */
     public boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
+        /*
+        * 1、isAccessAllowed 方法验证用户是否登录，已登录返回true：反之返回false
+        * 2、 onAccessDenied 方法处理用户未登录后的逻辑
+        * 两个方法都交给子类覆盖实现
+        * */
         return isAccessAllowed(request, response, mappedValue) || onAccessDenied(request, response, mappedValue);
     }
 
@@ -186,6 +169,7 @@ public abstract class AccessControlFilter extends PathMatchingFilter {
      * @param request  the incoming <code>ServletRequest</code>
      * @param response the outgoing <code>ServletResponse</code>
      * @throws IOException if an error occurs.
+     * 重定向到登录页
      */
     protected void saveRequestAndRedirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
         saveRequest(request);

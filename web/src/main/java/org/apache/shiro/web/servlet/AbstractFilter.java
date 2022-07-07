@@ -34,21 +34,19 @@ import javax.servlet.ServletException;
  * is left to subclasses.
  *
  * @since 1.0
+ * 实现了servlet的filter过滤器接口
  */
 public abstract class AbstractFilter extends ServletContextSupport implements Filter {
 
     private static transient final Logger log = LoggerFactory.getLogger(AbstractFilter.class);
 
     /**
-     * FilterConfig provided by the Servlet container at start-up.
+     * Servlet容器在启动时提供的 过滤器配置
      */
     protected FilterConfig filterConfig;
 
     /**
-     * Returns the servlet container specified {@code FilterConfig} instance provided at
-     * {@link #init(javax.servlet.FilterConfig) startup}.
-     *
-     * @return the servlet container specified {@code FilterConfig} instance provided at start-up.
+     * 过滤器配置
      */
     public FilterConfig getFilterConfig() {
         return filterConfig;
@@ -64,9 +62,9 @@ public abstract class AbstractFilter extends ServletContextSupport implements Fi
      * @param filterConfig the FilterConfig instance provided by the Servlet container at start-up.
      */
     public void setFilterConfig(FilterConfig filterConfig) {
-        /*保存 servlet filter 配置*/
+        /*保存servlet 过滤器配置*/
         this.filterConfig = filterConfig;
-        /*保存 servlet 上下文到 ServletContextSupport中*/
+        /*保存servlet上下文到 ServletContextSupport中*/
         setServletContext(filterConfig.getServletContext());
     }
 
@@ -95,9 +93,10 @@ public abstract class AbstractFilter extends ServletContextSupport implements Fi
      * @throws javax.servlet.ServletException if {@link #onFilterConfigSet() onFilterConfigSet()} throws an Exception.
      */
     public final void init(FilterConfig filterConfig) throws ServletException {
-        /*设置filter 配置 已经 servlet 上下文*/
+        /*保存过滤器配置 以及 servlet上下文*/
         setFilterConfig(filterConfig);
         try {
+            /*子类拓展*/
             onFilterConfigSet();
         } catch (Exception e) {
             if (e instanceof ServletException) {

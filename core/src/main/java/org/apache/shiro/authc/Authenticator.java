@@ -35,6 +35,7 @@ package org.apache.shiro.authc;
  * @see AbstractAuthenticator AbstractAuthenticator
  * @see org.apache.shiro.authc.pam.ModularRealmAuthenticator ModularRealmAuthenticator
  * @since 0.1
+ * 认证器接口
  */
 public interface Authenticator {
 

@@ -51,9 +51,12 @@ public abstract class SecurityUtils {
      *                               - a Subject should <em>always</em> be available to the caller.
      */
     public static Subject getSubject() {
+        /*从threadLocal尝试获取subject，没有则创建一个返回*/
         Subject subject = ThreadContext.getSubject();
         if (subject == null) {
+            /*创建一个subject*/
             subject = (new Subject.Builder()).buildSubject();
+            /*绑定到threadLocal中*/
             ThreadContext.bind(subject);
         }
         return subject;
@@ -112,6 +115,7 @@ public abstract class SecurityUtils {
      *          calling code, which typically indicates an invalid application configuration.
      */
     public static SecurityManager getSecurityManager() throws UnavailableSecurityManagerException {
+        /*从threadLocal获取securityManager信息*/
         SecurityManager securityManager = ThreadContext.getSecurityManager();
         if (securityManager == null) {
             securityManager = SecurityUtils.securityManager;

@@ -331,6 +331,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      * @see #doCreateSubject(org.apache.shiro.subject.SubjectContext)
      * @see #save(org.apache.shiro.subject.Subject)
      * @since 1.0
+     * 根据subject上下文实例化一个subject
      */
     public Subject createSubject(SubjectContext subjectContext) {
         //create a copy so we don't modify the argument's backing map:

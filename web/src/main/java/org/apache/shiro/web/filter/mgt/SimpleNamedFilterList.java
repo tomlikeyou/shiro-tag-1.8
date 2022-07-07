@@ -35,6 +35,7 @@ import java.util.*;
 public class SimpleNamedFilterList implements NamedFilterList {
     /*url*/
     private String name;
+    /*url对应的过滤器*/
     private List<Filter> backingList;
 
     /**

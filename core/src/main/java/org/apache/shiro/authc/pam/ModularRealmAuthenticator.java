@@ -92,6 +92,7 @@ public class ModularRealmAuthenticator extends AbstractAuthenticator {
      * {@link org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy} by default.
      */
     public ModularRealmAuthenticator() {
+        /*初始化认证策略为至少一个成功*/
         this.authenticationStrategy = new AtLeastOneSuccessfulStrategy();
     }
 

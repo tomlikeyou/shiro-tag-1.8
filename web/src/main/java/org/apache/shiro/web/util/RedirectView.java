@@ -199,7 +199,7 @@ public class RedirectView {
         targetUrl.append(getUrl());
         //change the following method to accept a StringBuilder instead of a StringBuilder for Shiro 2.x:
         appendQueryProperties(targetUrl, model, this.encodingScheme);
-
+        /*response重定向到登录页面*/
         sendRedirect(request, response, targetUrl.toString(), this.http10Compatible);
     }
 
