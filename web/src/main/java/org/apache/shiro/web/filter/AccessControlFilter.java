@@ -207,7 +207,9 @@ public abstract class AccessControlFilter extends PathMatchingFilter {
      * @throws IOException if an error occurs.
      */
     protected void redirectToLogin(ServletRequest request, ServletResponse response) throws IOException {
+        /*获取登录地址*/
         String loginUrl = getLoginUrl();
+        /*重定向到登录页*/
         WebUtils.issueRedirect(request, response, loginUrl);
     }
 

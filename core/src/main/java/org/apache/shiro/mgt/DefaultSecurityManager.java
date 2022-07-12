@@ -334,7 +334,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      * 根据subject上下文实例化一个subject
      */
     public Subject createSubject(SubjectContext subjectContext) {
-        //create a copy so we don't modify the argument's backing map:
+        //创建一个副本，这样我们就不会修改参数的支持映射
         SubjectContext context = copy(subjectContext);
 
         //ensure that the context has a SecurityManager instance, and if not, add one:

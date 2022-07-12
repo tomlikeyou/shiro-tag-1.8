@@ -47,7 +47,7 @@ public class ProxiedFilterChain implements FilterChain {
         }
         /*保存servlet容器原生的 过滤器链*/
         this.orig = orig;
-        /*保存shiro 根据url匹配的filterList*/
+        /*保存shiro 根据url匹配的过滤器链*/
         this.filters = filters;
         this.index = 0;
     }

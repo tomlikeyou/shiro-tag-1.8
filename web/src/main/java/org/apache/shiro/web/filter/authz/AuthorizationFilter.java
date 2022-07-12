@@ -106,17 +106,18 @@ public abstract class AuthorizationFilter extends AccessControlFilter {
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
 
         Subject subject = getSubject(request, response);
-        // If the subject isn't identified, redirect to login URL
+        /*如果未登录，则重定向到登录页*/
         if (subject.getPrincipal() == null) {
             saveRequestAndRedirectToLogin(request, response);
         } else {
-            // If subject is known but not authorized, redirect to the unauthorized URL if there is one
-            // If no unauthorized URL is specified, just return an unauthorized HTTP status code
+            /*如果已登录但未授权，则重定向到未授权的 URL，如果有，则重定向到未授权的 URL，如果未指定未授权的 URL，则仅返回未授权的 HTTP 状态码401*/
             String unauthorizedUrl = getUnauthorizedUrl();
             //SHIRO-142 - ensure that redirect _or_ error code occurs - both cannot happen due to response commit:
             if (StringUtils.hasText(unauthorizedUrl)) {
+                /*重定向到未授权页面*/
                 WebUtils.issueRedirect(request, response, unauthorizedUrl);
             } else {
+                /*进返回未授权的http状态码 401*/
                 WebUtils.toHttp(response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
             }
         }

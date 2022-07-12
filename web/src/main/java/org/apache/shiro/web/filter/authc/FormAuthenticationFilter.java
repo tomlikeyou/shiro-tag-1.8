@@ -214,7 +214,7 @@ public class FormAuthenticationFilter extends AuthenticatingFilter {
         return false;
     }
 
-    /*将失败信息保存到request域*/
+    /*将失败信息保存到request域 key：shiroLoginFailure*/
     protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e,
                                      ServletRequest request, ServletResponse response) {
         if (log.isDebugEnabled()) {

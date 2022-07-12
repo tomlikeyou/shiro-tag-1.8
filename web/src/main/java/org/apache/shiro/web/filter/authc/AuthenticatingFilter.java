@@ -126,9 +126,7 @@ public abstract class AuthenticatingFilter extends AuthenticationFilter {
     }
 
     /**
-     * Returns <code>true</code> if the mappedValue contains the {@link #PERMISSIVE} qualifier.
-     *
-     * @return <code>true</code> if this filter should be permissive
+     * 如果url对应的配置 包含 permissive关键字，返回true
      */
     protected boolean isPermissive(Object mappedValue) {
         if(mappedValue != null) {

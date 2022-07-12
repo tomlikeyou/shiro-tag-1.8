@@ -63,22 +63,15 @@ import java.util.Collection;
  */
 public class ModularRealmAuthenticator extends AbstractAuthenticator {
 
-    /*--------------------------------------------
-    |             C O N S T A N T S             |
-    ============================================*/
     private static final Logger log = LoggerFactory.getLogger(ModularRealmAuthenticator.class);
 
-    /*--------------------------------------------
-    |    I N S T A N C E   V A R I A B L E S    |
-    ============================================*/
     /**
-     * List of realms that will be iterated through when a user authenticates.
+     * realm集合
      */
     private Collection<Realm> realms;
 
     /**
-     * The authentication strategy to use during authentication attempts, defaults to a
-     * {@link org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy} instance.
+     * 身份认证期间使用的 认证策略，默认是至少一个成功
      */
     private AuthenticationStrategy authenticationStrategy;
 
@@ -268,11 +261,14 @@ public class ModularRealmAuthenticator extends AbstractAuthenticator {
      *                                 for the given principal and credentials.
      */
     protected AuthenticationInfo doAuthenticate(AuthenticationToken authenticationToken) throws AuthenticationException {
+        /*realm非空判断*/
         assertRealmsConfigured();
         Collection<Realm> realms = getRealms();
+        /*条件成立：说明是单realm认证*/
         if (realms.size() == 1) {
             return doSingleRealmAuthentication(realms.iterator().next(), authenticationToken);
         } else {
+            /*多realm认证*/
             return doMultiRealmAuthentication(realms, authenticationToken);
         }
     }

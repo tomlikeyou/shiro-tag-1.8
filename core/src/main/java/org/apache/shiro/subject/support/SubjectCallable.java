@@ -80,7 +80,7 @@ public class SubjectCallable<V> implements Callable<V> {
 
     public V call() throws Exception {
         try {
-            /*将subject、securityManager信息绑定到当前线程,通过threadLocal保存起来*/
+            /*将 SubjectThreadState 刚保存的subject、securityManager信息绑定到当前线程,通过threadLocal保存起来*/
             threadState.bind();
             /*调用回调方法*/
             return doCall(this.callable);

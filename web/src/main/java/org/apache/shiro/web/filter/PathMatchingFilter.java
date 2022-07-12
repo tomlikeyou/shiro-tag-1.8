@@ -82,7 +82,7 @@ public abstract class PathMatchingFilter extends AdviceFilter implements PathCon
         if (config != null) {
             values = split(config);
         }
-        /*每个过滤器都会保存自己需要处理的url，已经对应的（可能为空的）配置信息*/
+        /*每个过滤器都会保存自己需要处理的url，以及url对应的（可能为空的）配置信息*/
         this.appliedPaths.put(path, values);
         return this;
     }

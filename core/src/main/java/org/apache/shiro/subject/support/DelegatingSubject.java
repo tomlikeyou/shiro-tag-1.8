@@ -77,6 +77,7 @@ public class DelegatingSubject implements Subject {
             DelegatingSubject.class.getName() + ".RUN_AS_PRINCIPALS_SESSION_KEY";
 
     protected PrincipalCollection principals;
+    /*是否已认证*/
     protected boolean authenticated;
     protected String host;
     protected Session session;
@@ -259,6 +260,7 @@ public class DelegatingSubject implements Subject {
     /*shiro 登录逻辑*/
     public void login(AuthenticationToken token) throws AuthenticationException {
         clearRunAsIdentitiesInternal();
+        /*交给securityManager处理登录逻辑*/
         Subject subject = securityManager.login(this, token);
 
         PrincipalCollection principals;

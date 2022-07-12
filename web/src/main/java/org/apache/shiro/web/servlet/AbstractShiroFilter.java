@@ -199,6 +199,9 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
         return new DefaultWebSecurityManager();
     }
 
+    /*
+    * 根据安全管理器 判断是否是http Session
+    * */
     protected boolean isHttpSessions() {
         return getSecurityManager().isHttpSessionMode();
     }
@@ -365,7 +368,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
             /*转换shiro的request，response*/
             final ServletRequest request = prepareServletRequest(servletRequest, servletResponse, chain);
             final ServletResponse response = prepareServletResponse(request, servletResponse, chain);
-            /*创建一个subject*/
+            /*为每个请求创建一个subject*/
             final Subject subject = createSubject(request, response);
 
             /*将subject、securityManager信息保存到threadLocal里面*/
@@ -424,9 +427,9 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
             log.debug("No FilterChainResolver configured.  Returning original FilterChain.");
             return origChain;
         }
-
+        /*根据请求进行匹配，获取对应的过滤器链*/
         FilterChain resolved = resolver.getChain(request, response, origChain);
-        /*条件成立：说明根据当前请求地址 在shiro里面找到了对应的filterList*/
+        /*条件成立：说明根据当前请求 在shiro里面找到了对应的过滤器链*/
         if (resolved != null) {
             log.trace("Resolved a configured FilterChain for the current request.");
             chain = resolved;
@@ -459,7 +462,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
      */
     protected void executeChain(ServletRequest request, ServletResponse response, FilterChain origChain)
             throws IOException, ServletException {
-        /*筛选出匹配当前请求地址的 过滤器链 可能有匹配的，也有可能没有匹配的*/
+        /*筛选出匹配当前请求的 过滤器链 可能有匹配的，也有可能没有匹配的*/
         FilterChain chain = getExecutionChain(request, response, origChain);
         /*这里调用doFilter方法*/
         chain.doFilter(request, response);

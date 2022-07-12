@@ -35,19 +35,17 @@ import org.apache.shiro.util.CollectionUtils;
  */
 public class RolesAuthorizationFilter extends AuthorizationFilter {
 
-    //TODO - complete JavaDoc
-
     @SuppressWarnings({"unchecked"})
     public boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) throws IOException {
 
         Subject subject = getSubject(request, response);
         String[] rolesArray = (String[]) mappedValue;
-
+        /*如果url对应的配置为空，说明不需要进行角色的校验*/
         if (rolesArray == null || rolesArray.length == 0) {
             //no roles specified, so nothing to check - allow access.
             return true;
         }
-
+        /*否则进行验证角色*/
         Set<String> roles = CollectionUtils.asSet(rolesArray);
         return subject.hasAllRoles(roles);
     }

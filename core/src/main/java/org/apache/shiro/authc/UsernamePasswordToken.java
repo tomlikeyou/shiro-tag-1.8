@@ -43,54 +43,25 @@ package org.apache.shiro.authc;
  * @since 0.1
  */
 public class UsernamePasswordToken implements HostAuthenticationToken, RememberMeAuthenticationToken {
-
-    /*--------------------------------------------
-    |             C O N S T A N T S             |
-    ============================================*/
-
-    /*--------------------------------------------
-    |    I N S T A N C E   V A R I A B L E S    |
-    ============================================*/
-    /**
-     * The username
-     */
+    /*用户名*/
     private String username;
 
-    /**
-     * The password, in char[] format
-     */
+    /*密码*/
     private char[] password;
 
     /**
-     * Whether or not 'rememberMe' should be enabled for the corresponding login attempt;
-     * default is <code>false</code>
+     * 是否应该为相应的登录尝试启用 记住我；默认为false
      */
     private boolean rememberMe = false;
 
     /**
-     * The location from where the login attempt occurs, or <code>null</code> if not known or explicitly
-     * omitted.
+     * 登录时候的位置信息，如果未知或明确省略，则为 null
      */
     private String host;
 
-    /*--------------------------------------------
-    |         C O N S T R U C T O R S           |
-    ============================================*/
-
-    /**
-     * JavaBeans compatible no-arg constructor.
-     */
     public UsernamePasswordToken() {
     }
 
-    /**
-     * Constructs a new UsernamePasswordToken encapsulating the username and password submitted
-     * during an authentication attempt, with a <tt>null</tt> {@link #getHost() host} and a
-     * <tt>rememberMe</tt> default of <tt>false</tt>.
-     *
-     * @param username the username submitted for authentication
-     * @param password the password character array submitted for authentication
-     */
     public UsernamePasswordToken(final String username, final char[] password) {
         this(username, password, false, null);
     }

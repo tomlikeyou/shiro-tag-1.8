@@ -186,15 +186,15 @@ public abstract class AbstractAuthenticator implements Authenticator, LogoutAwar
      *                                 interface's JavaDoc for a more detailed explanation.
      */
     public final AuthenticationInfo authenticate(AuthenticationToken token) throws AuthenticationException {
-
+        /*非空判断*/
         if (token == null) {
             throw new IllegalArgumentException("Method argument (authentication token) cannot be null.");
         }
-
         log.trace("Authentication attempt received for token [{}]", token);
 
         AuthenticationInfo info;
         try {
+            /*抽象方法，模板方法，交给子类实现*/
             info = doAuthenticate(token);
             if (info == null) {
                 String msg = "No account information found for authentication token [" + token + "] by this " +

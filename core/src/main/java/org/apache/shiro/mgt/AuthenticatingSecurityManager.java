@@ -42,10 +42,7 @@ import org.apache.shiro.lang.util.LifecycleUtils;
  */
 public abstract class AuthenticatingSecurityManager extends RealmSecurityManager {
 
-    /**
-     * The internal <code>Authenticator</code> delegate instance that this SecurityManager instance will use
-     * to perform all authentication operations.
-     */
+    /*认证器 用于身份认证*/
     private Authenticator authenticator;
 
     /**
@@ -101,7 +98,7 @@ public abstract class AuthenticatingSecurityManager extends RealmSecurityManager
     }
 
     /**
-     * 委托认证器 进行身份验证。
+     * 委托认证器 进行身份验证
      */
     public AuthenticationInfo authenticate(AuthenticationToken token) throws AuthenticationException {
         return this.authenticator.authenticate(token);

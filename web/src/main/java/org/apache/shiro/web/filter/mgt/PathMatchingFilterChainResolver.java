@@ -94,6 +94,9 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
         this.filterChainManager = filterChainManager;
     }
 
+    /*
+    * 根据url请求从过滤器链管理器中进行匹配，匹配成功返回shiro对应的过滤器链，反之返回空
+    * */
     public FilterChain getChain(ServletRequest request, ServletResponse response, FilterChain originalChain) {
         /*获取shiro的过滤器链管理器*/
         FilterChainManager filterChainManager = getFilterChainManager();
@@ -105,11 +108,8 @@ public class PathMatchingFilterChainResolver implements FilterChainResolver {
         final String requestURI = getPathWithinApplication(request);
         final String requestURINoTrailingSlash = removeTrailingSlash(requestURI);
 
-        //the 'chain names' in this implementation are actually path patterns defined by the user.  We just use them
-        //as the chain name for the FilterChainManager's requirements
         /*遍历每一个配置的url*/
         for (String pathPattern : filterChainManager.getChainNames()) {
-            // If the path does match, then pass on to the subclass implementation for specific checks:
             /*如果匹配成功*/
             if (pathMatches(pathPattern, requestURI)) {
                 if (log.isTraceEnabled()) {

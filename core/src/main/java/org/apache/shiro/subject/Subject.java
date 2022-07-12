@@ -846,7 +846,7 @@ public interface Subject {
          *         other methods in this class.
          */
         public Subject buildSubject() {
-            /*securityManager根据subject上下文来创建一个subject*/
+            /*securityManager 根据subject上下文来创建一个subject*/
             return this.securityManager.createSubject(this.subjectContext);
         }
     }

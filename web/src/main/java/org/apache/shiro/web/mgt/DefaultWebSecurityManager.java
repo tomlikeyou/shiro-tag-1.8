@@ -52,8 +52,6 @@ import java.util.Collection;
  */
 public class DefaultWebSecurityManager extends DefaultSecurityManager implements WebSecurityManager {
 
-    //TODO - complete JavaDoc
-
     private static final Logger log = LoggerFactory.getLogger(DefaultWebSecurityManager.class);
 
     @Deprecated
@@ -191,9 +189,6 @@ public class DefaultWebSecurityManager extends DefaultSecurityManager implements
         super.setSessionManager(sessionManager);
     }
 
-    /**
-     * @since 1.0
-     */
     public boolean isHttpSessionMode() {
         SessionManager sessionManager = getSessionManager();
         return sessionManager instanceof WebSessionManager && ((WebSessionManager)sessionManager).isServletContainerSessions();

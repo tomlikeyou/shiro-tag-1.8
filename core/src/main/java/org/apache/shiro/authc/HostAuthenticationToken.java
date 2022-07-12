@@ -19,8 +19,7 @@
 package org.apache.shiro.authc;
 
 /**
- * A {@code HostAuthenticationToken} retains the host information from where
- * an authentication attempt originates.
+ * HostAuthenticationToken 添加了获取用户主机的功能
  *
  * @since 1.0
  */

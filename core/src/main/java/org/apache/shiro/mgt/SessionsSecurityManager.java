@@ -62,7 +62,7 @@ public abstract class SessionsSecurityManager extends AuthorizingSecurityManager
         super();
         /*初始化 默认的session管理器*/
         this.sessionManager = new DefaultSessionManager();
-        /*session 管理器 设置 缓存管理器*/
+        /*session管理器 保存 缓存管理器信息*/
         applyCacheManagerToSessionManager();
     }
 
