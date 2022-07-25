@@ -216,6 +216,7 @@ public abstract class AbstractAuthenticator implements Authenticator, LogoutAwar
                     log.warn(msg, t);
             }
             try {
+                /*通知监听器 认证失败*/
                 notifyFailure(token, ae);
             } catch (Throwable t2) {
                 if (log.isWarnEnabled()) {
@@ -231,7 +232,7 @@ public abstract class AbstractAuthenticator implements Authenticator, LogoutAwar
         }
 
         log.debug("Authentication successful for token [{}].  Returned account [{}]", token, info);
-
+        /*通知监听器 认证成功*/
         notifySuccess(token, info);
 
         return info;

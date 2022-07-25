@@ -159,6 +159,7 @@ public abstract class AuthenticatingRealm extends CachingRealm implements Initia
     }
 
     public AuthenticatingRealm(CacheManager cacheManager, CredentialsMatcher matcher) {
+        /*实例化realm时候设置 AuthenticationToken 类型*/
         authenticationTokenClass = UsernamePasswordToken.class;
 
         //retain backwards compatibility for Shiro 1.1 and earlier.  Setting to true by default will probably cause
@@ -564,7 +565,7 @@ public abstract class AuthenticatingRealm extends CachingRealm implements Initia
      * @throws AuthenticationException if authentication failed.
      */
     public final AuthenticationInfo getAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-
+        /*尝试从缓存中获取认证数据*/
         AuthenticationInfo info = getCachedAuthenticationInfo(token);
         if (info == null) {
             //otherwise not cached, perform the lookup:
@@ -709,6 +710,8 @@ public abstract class AuthenticatingRealm extends CachingRealm implements Initia
      *         authentication ONLY if the lookup is successful (i.e. account exists and is valid, etc.)
      * @throws AuthenticationException if there is an error acquiring data or performing
      *                                 realm-specific authentication logic for the specified <tt>token</tt>
+     *
+     * 抽象方法，交给子类实现
      */
     protected abstract AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException;
 
