@@ -41,6 +41,11 @@ public class ProxiedFilterChain implements FilterChain {
     private List<Filter> filters;
     private int index = 0;
 
+    /**
+     *
+     * @param orig servlet原始的过滤器链
+     * @param filters shiro的过滤器链
+     */
     public ProxiedFilterChain(FilterChain orig, List<Filter> filters) {
         if (orig == null) {
             throw new NullPointerException("original FilterChain cannot be null.");
@@ -55,7 +60,7 @@ public class ProxiedFilterChain implements FilterChain {
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
         /*条件成立：说明shiro自己的过滤器链 都走完了，需要走servlet自己本身的过滤器链逻辑*/
         if (this.filters == null || this.filters.size() == this.index) {
-            //we've reached the end of the wrapped chain, so invoke the original one:
+            //shiro的过滤器链已经执行完了，接下来执行servlet容器原生的过滤器链
             if (log.isTraceEnabled()) {
                 log.trace("Invoking original filter chain.");
             }

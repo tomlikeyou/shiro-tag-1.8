@@ -421,7 +421,7 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
     protected FilterChain getExecutionChain(ServletRequest request, ServletResponse response, FilterChain origChain) {
 
         FilterChain chain = origChain;
-        /*这里与spring整合时候 默认是 PathMatchingFilterChainResolver */
+        /*这里与spring整合时候 实例化springShiroFilter时候传递的过滤器链处理器 PathMatchingFilterChainResolver */
         FilterChainResolver resolver = getFilterChainResolver();
         if (resolver == null) {
             log.debug("No FilterChainResolver configured.  Returning original FilterChain.");

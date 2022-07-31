@@ -98,14 +98,14 @@ public abstract class OncePerRequestFilter extends NameableFilter {
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
-        /*从请求头获取信息，判断具体的过滤器 是否已经执行过了，条件成立：说明当前过滤器已经执行过了 则跳过当前过滤器，继续向后执行*/
+        /*从请求头获取信息，判断具体的过滤器 是否已经执行过了，条件成立：说明当前过滤器对这个url请求已经执行过了 则跳过当前过滤器，继续向后执行*/
         if ( request.getAttribute(alreadyFilteredAttributeName) != null ) {
             log.trace("Filter '{}' already executed.  Proceeding without invoking this filter.", getName());
             filterChain.doFilter(request, response);
         } else //noinspection deprecation
             if (/* added in 1.2: */ !isEnabled(request, response) ||
                 /* retain backwards compatibility: */ shouldNotFilter(request) ) {
-                /*条件成立：说明该过滤器不需要执行，直接跳过，继续像后执行*/
+                /*条件成立：说明该过滤器不需要执行，直接跳过，继续向后执行*/
             log.debug("Filter '{}' is not enabled for the current request.  Proceeding without invoking this filter.",
                     getName());
             filterChain.doFilter(request, response);

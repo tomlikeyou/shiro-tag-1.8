@@ -32,7 +32,7 @@ import javax.servlet.ServletResponse;
 
 /**
  * A {@code FilterChainResolver} that resolves {@link FilterChain}s based on url path
- * matching, as determined by a configurable {@link #setPathMatcher(org.apache.shiro.lang.util.PatternMatcher) PathMatcher}.
+ * matching, as determined by a configurable {@link # setPathMatcher(org.apache.shiro.lang.util.PatternMatcher) PathMatcher}.
  * <p/>
  * This implementation functions by consulting a {@link org.apache.shiro.web.filter.mgt.FilterChainManager} for all configured filter chains (keyed
  * by configured path pattern).  If an incoming Request path matches one of the configured path patterns (via

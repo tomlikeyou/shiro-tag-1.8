@@ -104,7 +104,6 @@ public abstract class AuthorizationFilter extends AccessControlFilter {
      * @throws IOException if there is any servlet error.
      */
     protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws IOException {
-
         Subject subject = getSubject(request, response);
         /*如果未登录，则重定向到登录页*/
         if (subject.getPrincipal() == null) {

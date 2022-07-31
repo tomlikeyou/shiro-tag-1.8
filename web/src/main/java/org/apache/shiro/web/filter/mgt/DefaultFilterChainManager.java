@@ -126,8 +126,6 @@ public class DefaultFilterChainManager implements FilterChainManager {
 
     public void createDefaultChain(String chainName) {
         /*如果项目没有配置 /** 的拦截规则，shiro默认保存一个/** -> 全局过滤器的 到 filterChains中*/
-        // only create the defaultChain if we don't have a chain with this name already
-        // (the global filters will already be in that chain)
         if (!getChainNames().contains(chainName) && !CollectionUtils.isEmpty(globalFilterNames)) {
             // add each of global filters
             globalFilterNames.stream().forEach(filterName -> addToChain(chainName, filterName));
@@ -174,7 +172,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
         for (String token : filterTokens) {
             String[] nameConfigPair = toNameConfigPair(token);
 
-            //现在我们有了过滤器名称、路径和（可能为空的）路径特定的配置，保存起来
+            //现在我们有了路径、过滤器名称、（可能为空的）路径特定的配置，保存起来
             addToChain(chainName, nameConfigPair[0], nameConfigPair[1]);
         }
     }
@@ -270,7 +268,9 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     protected void addFilter(String name, Filter filter, boolean init, boolean overwrite) {
+        /*根据名称从filters获取*/
         Filter existing = getFilter(name);
+        /*不存在则设置相关属性保存到filters*/
         if (existing == null || overwrite) {
             /*过滤器如果实现了 nameable接口，则设置名称*/
             if (filter instanceof Nameable) {
@@ -295,7 +295,7 @@ public class DefaultFilterChainManager implements FilterChainManager {
     /*
     * 参数1：url
     * 参数2：全局过滤器名称集合 的名称
-    * 参数3：null
+    * 参数3：url对应的（可能为空的）配置
     * */
     public void addToChain(String chainName, String filterName, String chainSpecificFilterConfig) {
         /*非空判断*/
@@ -382,7 +382,6 @@ public class DefaultFilterChainManager implements FilterChainManager {
     }
 
     public Set<String> getChainNames() {
-        //noinspection unchecked
         return this.filterChains != null ? this.filterChains.keySet() : Collections.EMPTY_SET;
     }
 

@@ -125,9 +125,9 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
     private SecurityManager securityManager;
     /*项目配置自定义的过滤器*/
     private Map<String, Filter> filters;
-    /*全局的filter名称，配置的每个url拦截请求，都会有全局的拦截器*/
+    /*全局的filter名称，配置的每个url拦截请求，都会有全局的过滤器*/
     private List<String> globalFilters;
-    /*自定义配置的url->拦截器，通常整合项目会对其进行配置*/
+    /*自定义配置的url->过滤器，通常整合项目会对其进行配置*/
     private Map<String, String> filterChainDefinitionMap; //urlPathExpression_to_comma-delimited-filter-chain-definition
     /*登录地址*/
     private String loginUrl;
@@ -407,7 +407,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
                 if (filter instanceof Nameable) {
                     ((Nameable) filter).setName(name);
                 }
-                /*将自定义配置的过滤器 保存到过滤器链管理器中 自定义配置的过滤器如果跟shiro内置的过滤器重复了的话，会将其更新*/
+                /*将自定义配置的过滤器 保存到过滤器链管理器中 自定义配置的过滤器如果跟shiro内置的过滤器名称重复了的话，会将其更新*/
                 manager.addFilter(name, filter, false);
             }
         }
@@ -416,7 +416,6 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
         manager.setGlobalFilters(this.globalFilters);
 
         /*将手动配置的过滤器规则 添加到 过滤器链管理器中*/
-        //build up the chains:
         Map<String, String> chains = getFilterChainDefinitionMap();
         if (!CollectionUtils.isEmpty(chains)) {
             for (Map.Entry<String, String> entry : chains.entrySet()) {
@@ -427,9 +426,8 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
                 manager.createChain(url, chainDefinition);
             }
         }
-        /*创建默认的匹配拦截*/
-        // create the default chain, to match anything the path matching would have missed
-        manager.createDefaultChain("/**"); // TODO this assumes ANT path matching, which might be OK here
+        /*创建默认的匹配过滤*/
+        manager.createDefaultChain("/**");
 
         return manager;
     }
