@@ -97,7 +97,7 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
     }
 
     public Session start(SessionContext context) {
-        /*实例化一个session，设置sessionId属性，使用sessionDao保存session然后返回*/
+        /*实例化一个session，设置sessionId属性，使用sessionDao保存session然后返回session*/
         Session session = createSession(context);
         /*session保存全局过期时间*/
         applyGlobalSessionTimeout(session);
