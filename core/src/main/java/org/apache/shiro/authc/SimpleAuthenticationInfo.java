@@ -46,12 +46,12 @@ public class SimpleAuthenticationInfo implements MergableAuthenticationInfo, Sal
      */
     protected PrincipalCollection principals;
     /**
-     * The credentials verifying the account principals.
+     * 验证帐户主体的凭据信息,通常是密码
      */
     protected Object credentials;
 
     /**
-     * Any salt used in hashing the credentials.
+     * 验证帐户主体的凭据
      *
      * @since 1.1
      */

@@ -91,12 +91,15 @@ public class WebDelegatingSubject extends DelegatingSubject implements WebSubjec
 
     @Override
     protected SessionContext createSessionContext() {
+        /*实例化一个session上下文*/
         WebSessionContext wsc = new DefaultWebSessionContext();
         String host = getHost();
         if (StringUtils.hasText(host)) {
             wsc.setHost(host);
         }
+        /*session上下文保存 request 信息，跟subject上下文一样保存在map当中*/
         wsc.setServletRequest(this.servletRequest);
+        /*session上下文保存 response 信息，跟subject上下文一样保存在map当中*/
         wsc.setServletResponse(this.servletResponse);
         return wsc;
     }

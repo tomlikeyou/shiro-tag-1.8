@@ -87,6 +87,7 @@ public class SimpleSession implements ValidatingSession, Serializable {
     private transient Date startTimestamp;
     private transient Date stopTimestamp;
     private transient Date lastAccessTime;
+    /*超时时间*/
     private transient long timeout;
     private transient boolean expired;
     private transient String host;

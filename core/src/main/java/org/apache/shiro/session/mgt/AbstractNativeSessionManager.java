@@ -97,9 +97,12 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
     }
 
     public Session start(SessionContext context) {
+        /*实例化一个session，设置sessionId属性，使用sessionDao保存session然后返回*/
         Session session = createSession(context);
+        /*session保存全局过期时间*/
         applyGlobalSessionTimeout(session);
         onStart(session, context);
+        /*通知session监听器，触发回调方法*/
         notifyStart(session);
         //Don't expose the EIS-tier Session object to the client-tier:
         return createExposedSession(session, context);
@@ -122,7 +125,9 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
     protected abstract Session createSession(SessionContext context) throws AuthorizationException;
 
     protected void applyGlobalSessionTimeout(Session session) {
+        /*session设置全局过期时间，默认30分钟*/
         session.setTimeout(getGlobalSessionTimeout());
+        /*session超时时间发生改变时，会回调sessionDao的update方法*/
         onChange(session);
     }
 
@@ -143,6 +148,7 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
     }
 
     private Session lookupSession(SessionKey key) throws SessionException {
+        /*非空判断*/
         if (key == null) {
             throw new NullPointerException("SessionKey argument cannot be null.");
         }
@@ -158,6 +164,7 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
         return session;
     }
 
+    /*抽象方法，交给子类实现*/
     protected abstract Session doGetSession(SessionKey key) throws InvalidSessionException;
 
     protected Session createExposedSession(Session session, SessionContext context) {

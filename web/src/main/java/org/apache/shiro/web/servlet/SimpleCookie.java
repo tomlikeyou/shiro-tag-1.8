@@ -431,10 +431,14 @@ public class SimpleCookie implements Cookie {
         log.trace("Removed '{}' cookie by setting maxAge=0", name);
     }
 
+    /*
+    * 从cookies里获取指定名称的cookie值，不存在返回null
+    * */
     @Override
     public String readValue(HttpServletRequest request, HttpServletResponse ignored) {
         String name = getName();
         String value = null;
+        /*从request里获取指定名称的cookie*/
         javax.servlet.http.Cookie cookie = getCookie(request, name);
         if (cookie != null) {
             // Validate that the cookie is used at the correct place.

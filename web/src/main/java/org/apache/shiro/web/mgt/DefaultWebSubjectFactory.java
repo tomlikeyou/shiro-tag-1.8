@@ -46,7 +46,7 @@ public class DefaultWebSubjectFactory extends DefaultSubjectFactory {
         super();
     }
 
-    /*web环境下创建的subject*/
+    /*web环境下创建的创建subject方法*/
     public Subject createSubject(SubjectContext context) {
         //SHIRO-646
         //Check if the existing subject is NOT a WebSubject. If it isn't, then call super.createSubject instead.
@@ -57,10 +57,15 @@ public class DefaultWebSubjectFactory extends DefaultSubjectFactory {
             return super.createSubject(context);
         }
         WebSubjectContext wsc = (WebSubjectContext) context;
+        /*从subject上下文获取安全管理器信息*/
         SecurityManager securityManager = wsc.resolveSecurityManager();
+        /*从subject上下文获取session信息，第一次请求时候 subject上下文是获取不到session信息的*/
         Session session = wsc.resolveSession();
+        /*从subject上下文获取 是否要开启创建session的信息*/
         boolean sessionEnabled = wsc.isSessionCreationEnabled();
+        /*从subject上下文获取 principals信息，同session一样，第一次请求时候 subject上下文是获取不到 principals 信息的,认证通过之后，principals就有信息*/
         PrincipalCollection principals = wsc.resolvePrincipals();
+        /*从subject上下文获取 是否已认证信息，认证通过之后该信息为true*/
         boolean authenticated = wsc.resolveAuthenticated();
         String host = wsc.resolveHost();
         ServletRequest request = wsc.resolveServletRequest();

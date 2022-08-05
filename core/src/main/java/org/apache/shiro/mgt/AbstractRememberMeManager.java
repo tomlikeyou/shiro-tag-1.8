@@ -285,6 +285,7 @@ public abstract class AbstractRememberMeManager implements RememberMeManager {
 
         //now save the new identity:
         if (isRememberMe(token)) {
+            /*如果开启了remember功能则会进入*/
             rememberIdentity(subject, token, info);
         } else {
             if (log.isDebugEnabled()) {

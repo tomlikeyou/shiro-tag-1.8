@@ -45,21 +45,21 @@ import java.io.Serializable;
  * @since 1.0
  */
 public class DefaultSubjectContext extends MapContext implements SubjectContext {
-
+    /*安全管理器信息*/
     private static final String SECURITY_MANAGER = DefaultSubjectContext.class.getName() + ".SECURITY_MANAGER";
 
     private static final String SESSION_ID = DefaultSubjectContext.class.getName() + ".SESSION_ID";
-
+    /*AuthenticationToken属性*/
     private static final String AUTHENTICATION_TOKEN = DefaultSubjectContext.class.getName() + ".AUTHENTICATION_TOKEN";
-
+    /*AuthenticationInfo属性*/
     private static final String AUTHENTICATION_INFO = DefaultSubjectContext.class.getName() + ".AUTHENTICATION_INFO";
-
+    /*subject信息*/
     private static final String SUBJECT = DefaultSubjectContext.class.getName() + ".SUBJECT";
 
     private static final String PRINCIPALS = DefaultSubjectContext.class.getName() + ".PRINCIPALS";
 
     private static final String SESSION = DefaultSubjectContext.class.getName() + ".SESSION";
-
+    /*认证属性*/
     private static final String AUTHENTICATED = DefaultSubjectContext.class.getName() + ".AUTHENTICATED";
 
     private static final String HOST = DefaultSubjectContext.class.getName() + ".HOST";
@@ -148,7 +148,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         PrincipalCollection principals = getPrincipals();
 
         if (isEmpty(principals)) {
-            //check to see if they were just authenticated:
+            //检查它们是否刚刚通过身份验证
             AuthenticationInfo info = getAuthenticationInfo();
             if (info != null) {
                 principals = info.getPrincipals();
@@ -186,7 +186,6 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         /*从subject上下文获取 session信息*/
         Session session = getSession();
         if (session == null) {
-            //try the Subject if it exists:
             /*尝试从subject中获取*/
             Subject existingSubject = getSubject();
             if (existingSubject != null) {

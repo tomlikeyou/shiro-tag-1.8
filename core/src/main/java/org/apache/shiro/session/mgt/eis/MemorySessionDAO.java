@@ -57,7 +57,7 @@ public class MemorySessionDAO extends AbstractSessionDAO {
 
     private static final Logger log = LoggerFactory.getLogger(MemorySessionDAO.class);
 
-    /*直接在内存里管理session*/
+    /*直接在内存里管理session, key:sessionId,value:session*/
     private ConcurrentMap<Serializable, Session> sessions;
 
     public MemorySessionDAO() {
@@ -65,16 +65,20 @@ public class MemorySessionDAO extends AbstractSessionDAO {
     }
 
     protected Serializable doCreate(Session session) {
+        /*交给sessionId生成器生成一个sessionId*/
         Serializable sessionId = generateSessionId(session);
+        /*session设置sessionId*/
         assignSessionId(session, sessionId);
         storeSession(sessionId, session);
         return sessionId;
     }
 
     protected Session storeSession(Serializable id, Session session) {
+        /*非空判断*/
         if (id == null) {
             throw new NullPointerException("id argument cannot be null.");
         }
+        /*保存session，key：sessionId,value：session*/
         return sessions.putIfAbsent(id, session);
     }
 

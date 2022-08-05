@@ -74,6 +74,7 @@ public class DefaultWebSecurityManager extends DefaultSecurityManager implements
         this.sessionMode = HTTP_SESSION_MODE;
         /*设置 subjectFactory*/
         setSubjectFactory(new DefaultWebSubjectFactory());
+        /*设置rememberManager，认证成功后会用到*/
         setRememberMeManager(new CookieRememberMeManager());
         /*设置 session管理器为 ServletContainerSessionManager*/
         setSessionManager(new ServletContainerSessionManager());
@@ -227,8 +228,11 @@ public class DefaultWebSecurityManager extends DefaultSecurityManager implements
     @Override
     protected SessionKey getSessionKey(SubjectContext context) {
         if (WebUtils.isWeb(context)) {
+            /*从subject上下文获取sessionId*/
             Serializable sessionId = context.getSessionId();
+            /*获取request*/
             ServletRequest request = WebUtils.getRequest(context);
+            /*获取response*/
             ServletResponse response = WebUtils.getResponse(context);
             return new WebSessionKey(sessionId, request, response);
         } else {

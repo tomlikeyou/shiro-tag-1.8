@@ -49,6 +49,7 @@ public abstract class AbstractSessionDAO implements SessionDAO {
     /**
      * Optional SessionIdGenerator instance available to subclasses via the
      * {@link #generateSessionId(org.apache.shiro.session.Session)} method.
+     * sessionId生成器
      */
     private SessionIdGenerator sessionIdGenerator;
 
@@ -116,7 +117,9 @@ public abstract class AbstractSessionDAO implements SessionDAO {
      * @param session Session object to create in the EIS and associate with an ID.
      */
     public Serializable create(Session session) {
+        /*创建session并设置sessionId，然后保存session*/
         Serializable sessionId = doCreate(session);
+        /*sessionId非空判断*/
         verifySessionId(sessionId);
         return sessionId;
     }

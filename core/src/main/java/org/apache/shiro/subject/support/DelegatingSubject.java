@@ -75,11 +75,13 @@ public class DelegatingSubject implements Subject {
 
     private static final String RUN_AS_PRINCIPALS_SESSION_KEY =
             DelegatingSubject.class.getName() + ".RUN_AS_PRINCIPALS_SESSION_KEY";
-
+    /*身份信息*/
     protected PrincipalCollection principals;
-    /*是否已认证*/
+    /*是否已认证属性*/
     protected boolean authenticated;
+    /*主机信息*/
     protected String host;
+    /*session信息*/
     protected Session session;
     /**
      * @since 1.2
@@ -103,13 +105,17 @@ public class DelegatingSubject implements Subject {
         if (securityManager == null) {
             throw new IllegalArgumentException("SecurityManager argument cannot be null.");
         }
+        /*保存安全管理器信息*/
         this.securityManager = securityManager;
+        /*保存凭据信息*/
         this.principals = principals;
+        /*保存是否已认证信息*/
         this.authenticated = authenticated;
         this.host = host;
         if (session != null) {
             this.session = decorate(session);
         }
+        /*保存是否开启创建 session信息*/
         this.sessionCreationEnabled = sessionCreationEnabled;
     }
 
@@ -260,7 +266,7 @@ public class DelegatingSubject implements Subject {
     /*shiro 登录逻辑*/
     public void login(AuthenticationToken token) throws AuthenticationException {
         clearRunAsIdentitiesInternal();
-        /*交给securityManager处理登录逻辑*/
+        /*交给securityManager处理登录逻辑,登录成功会往subject上下文保存相关信息,然后实例化一个新的subject返回*/
         Subject subject = securityManager.login(this, token);
 
         PrincipalCollection principals;
@@ -281,14 +287,18 @@ public class DelegatingSubject implements Subject {
                     "empty value.  This value must be non null and populated with one or more elements.";
             throw new IllegalStateException(msg);
         }
+        /*保存账号信息*/
         this.principals = principals;
+        /*设置已认证属性为true*/
         this.authenticated = true;
         if (token instanceof HostAuthenticationToken) {
             host = ((HostAuthenticationToken) token).getHost();
         }
+        /*保存主机信息*/
         if (host != null) {
             this.host = host;
         }
+        /*保存session信息,认证通过之后获取到了session信息*/
         Session session = subject.getSession(false);
         if (session != null) {
             this.session = decorate(session);
@@ -340,8 +350,11 @@ public class DelegatingSubject implements Subject {
             }
 
             log.trace("Starting session for host {}", getHost());
+            /*实例化一个session上下文*/
             SessionContext sessionContext = createSessionContext();
+            /*实例化一个session*/
             Session session = this.securityManager.start(sessionContext);
+            /*subject保存session信息*/
             this.session = decorate(session);
         }
         return this.session;

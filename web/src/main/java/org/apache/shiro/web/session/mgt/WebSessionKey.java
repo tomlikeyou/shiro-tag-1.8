@@ -31,7 +31,9 @@ import java.io.Serializable;
  */
 public class WebSessionKey extends DefaultSessionKey implements RequestPairSource {
 
+    /*保存request*/
     private final ServletRequest servletRequest;
+    /*保存response*/
     private final ServletResponse servletResponse;
 
     public WebSessionKey(ServletRequest request, ServletResponse response) {

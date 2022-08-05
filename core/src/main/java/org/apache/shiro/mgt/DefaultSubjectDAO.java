@@ -196,6 +196,7 @@ public class DefaultSubjectDAO implements SubjectDAO {
                 throw new IllegalStateException("Unable to access DelegatingSubject principals property.", e);
             }
         }
+        /*认证通过之后 实例化出来的subject信息里，就多了 principals 信息，跟authenticated 信息*/
         if (currentPrincipals == null || currentPrincipals.isEmpty()) {
             currentPrincipals = subject.getPrincipals();
         }
@@ -203,8 +204,11 @@ public class DefaultSubjectDAO implements SubjectDAO {
         Session session = subject.getSession(false);
 
         if (session == null) {
+            /*认证通过之后，会进入到这个代码块*/
             if (!isEmpty(currentPrincipals)) {
+                /*这里会创建一个session*/
                 session = subject.getSession();
+                /*session保存 principals 信息*/
                 session.setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, currentPrincipals);
             }
             // otherwise no session and no principals - nothing to save
@@ -244,10 +248,12 @@ public class DefaultSubjectDAO implements SubjectDAO {
             }
             //otherwise no session and not authenticated - nothing to save
         } else {
+            /*认证通过之后会走到这里*/
             Boolean existingAuthc = (Boolean) session.getAttribute(DefaultSubjectContext.AUTHENTICATED_SESSION_KEY);
 
             if (subject.isAuthenticated()) {
                 if (existingAuthc == null || !existingAuthc) {
+                    /*session保存认证信息 */
                     session.setAttribute(DefaultSubjectContext.AUTHENTICATED_SESSION_KEY, Boolean.TRUE);
                 }
                 //otherwise authc state matches - no need to update the session

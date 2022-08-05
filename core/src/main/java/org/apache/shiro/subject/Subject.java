@@ -613,7 +613,7 @@ public interface Subject {
         private final SubjectContext subjectContext;
 
         /**
-         * The SecurityManager to invoke during the {@link #buildSubject} call.
+         * 安全管理器
          */
         private final SecurityManager securityManager;
 

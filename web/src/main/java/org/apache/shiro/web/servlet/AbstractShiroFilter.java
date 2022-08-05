@@ -371,7 +371,10 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
             /*为每个请求创建一个subject*/
             final Subject subject = createSubject(request, response);
 
-            /*将subject、securityManager信息保存到threadLocal里面*/
+            /*
+            * 1.将subject、securityManager信息保存到threadLocal里面
+            * 2.执行call方法
+            * */
             subject.execute(new Callable() {
                 public Object call() throws Exception {
                     /*如果不是由servlet自己 管理的session，那么会调用touch方法 手动更新session会话上次访问时间*/

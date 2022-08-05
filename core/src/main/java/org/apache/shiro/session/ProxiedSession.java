@@ -34,7 +34,7 @@ import java.util.Date;
 public class ProxiedSession implements Session {
 
     /**
-     * The proxied instance
+     * 代理的session实例
      */
     protected final Session delegate;
 

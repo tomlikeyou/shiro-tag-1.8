@@ -179,14 +179,21 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      *         authenticated subject.
      */
     protected Subject createSubject(AuthenticationToken token, AuthenticationInfo info, Subject existing) {
+        /*实例化一个subject上下文*/
         SubjectContext context = createSubjectContext();
+        /*subject上下文设置 认证属性为true*/
         context.setAuthenticated(true);
+        /*subject上下文保存 AuthenticationToken信息*/
         context.setAuthenticationToken(token);
+        /*subject上下文保存 AuthenticationInfo信息*/
         context.setAuthenticationInfo(info);
+        /*subject上下文保存 安全管理器信息*/
         context.setSecurityManager(this);
+        /*保存subject信息*/
         if (existing != null) {
             context.setSubject(existing);
         }
+        /*根据subject上下文信息实例化一个subject*/
         return createSubject(context);
     }
 
@@ -286,7 +293,12 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
             }
             throw ae; //propagate
         }
-
+        /*
+        * 保存相关信息 然后实例化一个新的subject
+        * 参数1：token信息
+        * 参数2：认证info信息
+        * 参数3：threadLocal里的subject，暂称之为旧的 subject
+        * */
         Subject loggedIn = createSubject(token, info, subject);
 
         onSuccessfulLogin(token, info, loggedIn);
@@ -334,21 +346,23 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      * 根据subject上下文实例化一个subject
      */
     public Subject createSubject(SubjectContext subjectContext) {
-        //创建一个副本，这样我们就不会修改参数的支持映射
+        //创建一个subject上下文副本，这样我们就不会修改参数的支持映射
         SubjectContext context = copy(subjectContext);
 
-        //ensure that the context has a SecurityManager instance, and if not, add one:
+        //确保上下文有一个 SecurityManager 实例，如果没有，则将当前的安全管理器 添加进去
         context = ensureSecurityManager(context);
 
         //Resolve an associated Session (usually based on a referenced session ID), and place it in the context before
         //sending to the SubjectFactory.  The SubjectFactory should not need to know how to acquire sessions as the
         //process is often environment specific - better to shield the SF from these details:
+        /*确保subject上下文有一个session，第一次请求过来时候，subject是没有session信息的*/
         context = resolveSession(context);
 
         //Similarly, the SubjectFactory should not require any concept of RememberMe - translate that here first
         //if possible before handing off to the SubjectFactory:
+        /*确保subject上下文有Principals信息，同样 第一次请求过来时候，subject是没有 Principals 信息的*/
         context = resolvePrincipals(context);
-
+        /*第一次实例化的subject只有 安全管理器、request、response信息、authenticated=false、sessionEnabled=true这些信息*/
         Subject subject = doCreateSubject(context);
 
         //save this subject for future reference if necessary:
@@ -440,14 +454,15 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      */
     @SuppressWarnings({"unchecked"})
     protected SubjectContext resolveSession(SubjectContext context) {
+        /*尝试从subject 上下文中获取session*/
         if (context.resolveSession() != null) {
             log.debug("Context already contains a session.  Returning.");
             return context;
         }
         try {
-            //Context couldn't resolve it directly, let's see if we can since we have direct access to 
-            //the session manager:
+            //subject上下文无法直接解决它，让我们看看是否可以，因为我们可以直接访问会话管理器
             Session session = resolveContextSession(context);
+            /*如果从会话管理器中获取到了session信息，则subject上下文保存起来session信息*/
             if (session != null) {
                 context.setSession(session);
             }

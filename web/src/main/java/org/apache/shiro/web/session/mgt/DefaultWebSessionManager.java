@@ -118,8 +118,11 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
         return getSessionIdCookie().readValue(httpRequest, WebUtils.toHttp(response));
     }
 
+    /*
+    * 从cookie中获取指定cookie名称的value值，没有返回null
+    * */
     private Serializable getReferencedSessionId(ServletRequest request, ServletResponse response) {
-
+        /*从cookies中获取指定cookie名称的value值*/
         String id = getSessionIdCookieValue(request, response);
         if (id != null) {
             request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_SOURCE,
@@ -270,6 +273,7 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
 
     @Override
     public Serializable getSessionId(SessionKey key) {
+        /*获取sessionKey里的sessionId*/
         Serializable id = super.getSessionId(key);
         if (id == null && WebUtils.isWeb(key)) {
             ServletRequest request = WebUtils.getRequest(key);

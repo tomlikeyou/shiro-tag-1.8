@@ -151,6 +151,7 @@ public class DefaultSessionManager extends AbstractValidatingSessionManager impl
     }
 
     protected Session doCreateSession(SessionContext context) {
+        /*实例化一个shiro session*/
         Session s = newSessionInstance(context);
         if (log.isTraceEnabled()) {
             log.trace("Creating session for host {}", s.getHost());
@@ -213,6 +214,7 @@ public class DefaultSessionManager extends AbstractValidatingSessionManager impl
     }
 
     protected Session retrieveSession(SessionKey sessionKey) throws UnknownSessionException {
+        /*获取sessionId的值*/
         Serializable sessionId = getSessionId(sessionKey);
         if (sessionId == null) {
             log.debug("Unable to resolve session ID from SessionKey [{}].  Returning null to indicate a " +
