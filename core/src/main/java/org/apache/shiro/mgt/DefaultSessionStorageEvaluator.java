@@ -32,6 +32,7 @@ public class DefaultSessionStorageEvaluator implements SessionStorageEvaluator {
     /**
      * Global policy determining if Subject sessions may be used to persist Subject state if the Subject's Session
      * does not yet exist.
+     * 是否开启session存储，默认为true：开启
      */
     private boolean sessionStorageEnabled = true;
 

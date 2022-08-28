@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public enum DefaultFilter {
 
-    logout(LogoutFilter.class),/*没有实现 PathConfigProcessor 接口*/
+    logout(LogoutFilter.class),/*没有实现 PathConfigProcessor接口，其他都实现了PathConfigProcessor接口*/
     anon(AnonymousFilter.class),
     authc(FormAuthenticationFilter.class),
     authcBasic(BasicHttpAuthenticationFilter.class),

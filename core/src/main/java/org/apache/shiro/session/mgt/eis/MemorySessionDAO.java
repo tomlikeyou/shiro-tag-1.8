@@ -67,8 +67,9 @@ public class MemorySessionDAO extends AbstractSessionDAO {
     protected Serializable doCreate(Session session) {
         /*交给sessionId生成器生成一个sessionId*/
         Serializable sessionId = generateSessionId(session);
-        /*session设置sessionId*/
+        /*session保存sessionId属性值*/
         assignSessionId(session, sessionId);
+        /*保存session信息，认证通过之后后面的请求，会根据sessionId从这里获取到session信息*/
         storeSession(sessionId, session);
         return sessionId;
     }

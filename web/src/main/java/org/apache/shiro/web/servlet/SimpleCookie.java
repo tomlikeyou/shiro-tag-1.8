@@ -92,6 +92,7 @@ public class SimpleCookie implements Cookie {
 
     public SimpleCookie(String name) {
         this();
+        //设置cookie的名称
         this.name = name;
     }
 

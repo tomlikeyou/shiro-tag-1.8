@@ -266,9 +266,10 @@ public class DelegatingSubject implements Subject {
     /*shiro 登录逻辑*/
     public void login(AuthenticationToken token) throws AuthenticationException {
         clearRunAsIdentitiesInternal();
-        /*交给securityManager处理登录逻辑,登录成功会往subject上下文保存相关信息,然后实例化一个新的subject返回*/
+        /*交给securityManager处理登录逻辑,登录成功会往subject上下文保存相关信息,然后实例化一个新的暂时的subject返回*/
         Subject subject = securityManager.login(this, token);
 
+        //从新的subject当中 获取相关信息，保存到真实暴露给用户的subject，也就是threadLocal保存的subject里
         PrincipalCollection principals;
 
         String host = null;
@@ -298,9 +299,10 @@ public class DelegatingSubject implements Subject {
         if (host != null) {
             this.host = host;
         }
-        /*保存session信息,认证通过之后获取到了session信息*/
+        /*保存session信息,认证通过之后获取到了session信息，这里获取到的是 StoppingAwareProxiedSession*/
         Session session = subject.getSession(false);
         if (session != null) {
+            /*真实暴露的subject保存session信息*/
             this.session = decorate(session);
         } else {
             this.session = null;
@@ -352,7 +354,7 @@ public class DelegatingSubject implements Subject {
             log.trace("Starting session for host {}", getHost());
             /*实例化一个session上下文*/
             SessionContext sessionContext = createSessionContext();
-            /*实例化一个session*/
+            /*实例化一个session，返回一个 delegatingSession，里面有session管理器，sessionKey，sessionKey里面保存了sessionId，request、response*/
             Session session = this.securityManager.start(sessionContext);
             /*subject保存session信息*/
             this.session = decorate(session);

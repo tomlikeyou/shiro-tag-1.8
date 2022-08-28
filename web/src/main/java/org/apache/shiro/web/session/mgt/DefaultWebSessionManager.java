@@ -88,6 +88,7 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
         this.sessionIdUrlRewritingEnabled = sessionIdUrlRewritingEnabled;
     }
 
+    /*将sessionId通过cookie方式保存到request中*/
     private void storeSessionId(Serializable currentId, HttpServletRequest request, HttpServletResponse response) {
         if (currentId == null) {
             String msg = "sessionId cannot be null when persisting for subsequent requests.";
@@ -96,7 +97,9 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
         Cookie template = getSessionIdCookie();
         Cookie cookie = new SimpleCookie(template);
         String idString = currentId.toString();
+        /*修改shiro的cookie value值*/
         cookie.setValue(idString);
+        /*将shiro的cookie保存到response中*/
         cookie.saveTo(request, response);
         log.trace("Set session ID cookie for session with id {}", idString);
     }
@@ -225,6 +228,7 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
         if (!WebUtils.isWeb(context)) {
             return super.createExposedSession(session, context);
         }
+        /*从session上下文获取 request、response*/
         ServletRequest request = WebUtils.getRequest(context);
         ServletResponse response = WebUtils.getResponse(context);
         SessionKey key = new WebSessionKey(session.getId(), request, response);
@@ -232,12 +236,13 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
     }
 
     protected Session createExposedSession(Session session, SessionKey key) {
+        /*如果不是web环境调用父类方法*/
         if (!WebUtils.isWeb(key)) {
             return super.createExposedSession(session, key);
         }
-
         ServletRequest request = WebUtils.getRequest(key);
         ServletResponse response = WebUtils.getResponse(key);
+        /*此时从sessionKey才有了sessionId信息*/
         SessionKey sessionKey = new WebSessionKey(session.getId(), request, response);
         return new DelegatingSession(this, sessionKey);
     }
@@ -257,11 +262,14 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
             return;
 
         }
+        /*从session上下文当中获取request、response*/
         HttpServletRequest request = WebUtils.getHttpRequest(context);
         HttpServletResponse response = WebUtils.getHttpResponse(context);
-
+        /*是否开启sessionId存到cookie功能，默认开启*/
         if (isSessionIdCookieEnabled()) {
+            /*获取sessionId信息*/
             Serializable sessionId = session.getId();
+            /*将sessionId值通过cookie方式保存到request中*/
             storeSessionId(sessionId, request, response);
         } else {
             log.debug("Session ID cookie is disabled.  No cookie has been set for new session with id {}", session.getId());
@@ -278,6 +286,7 @@ public class DefaultWebSessionManager extends DefaultSessionManager implements W
         if (id == null && WebUtils.isWeb(key)) {
             ServletRequest request = WebUtils.getRequest(key);
             ServletResponse response = WebUtils.getResponse(key);
+            /*认证之后 后面的请求，会从浏览器cookie当中获取到sessionId*/
             id = getSessionId(request, response);
         }
         return id;

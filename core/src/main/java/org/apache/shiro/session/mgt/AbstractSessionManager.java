@@ -40,7 +40,7 @@ public abstract class AbstractSessionManager implements SessionManager {
     protected static final long MILLIS_PER_HOUR = 60 * MILLIS_PER_MINUTE;
 
     /**
-     * Default main session timeout value, equal to {@code 30} minutes.
+     * 默认session超时时间，等于 30 分钟
      */
     public static final long DEFAULT_GLOBAL_SESSION_TIMEOUT = 30 * MILLIS_PER_MINUTE;
 

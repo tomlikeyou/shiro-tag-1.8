@@ -83,6 +83,7 @@ public class SimpleSession implements ValidatingSession, Serializable {
     // http://mail-archives.apache.org/mod_mbox/shiro-user/201109.mbox/%3C4E81BCBD.8060909@metaphysis.net%3E
     //
     // ==============================================================
+    /*sessionId的值*/
     private transient Serializable id;
     private transient Date startTimestamp;
     private transient Date stopTimestamp;

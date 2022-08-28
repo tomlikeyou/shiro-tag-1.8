@@ -297,7 +297,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
         * 保存相关信息 然后实例化一个新的subject
         * 参数1：token信息
         * 参数2：认证info信息
-        * 参数3：threadLocal里的subject，暂称之为旧的 subject 或者称之为真实暴露在外的subject
+        * 参数3：threadLocal里的subject，暂称之为旧的 subject 或者称之为真实暴露给用户的subject
         * */
         Subject loggedIn = createSubject(token, info, subject);
 
@@ -352,17 +352,16 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
         //确保上下文有一个 SecurityManager 实例，如果没有，则将当前的安全管理器 添加进去
         context = ensureSecurityManager(context);
 
-        //Resolve an associated Session (usually based on a referenced session ID), and place it in the context before
-        //sending to the SubjectFactory.  The SubjectFactory should not need to know how to acquire sessions as the
-        //process is often environment specific - better to shield the SF from these details:
-        /*确保subject上下文有一个session，第一次请求过来时候，subject是没有session信息的*/
+        /*确保subject上下文有一个session，第一次请求过来时候，subject是没有session信息的，
+        刚认证通过之后走这里也是获取不到的，因为是从threadLocal保存的subject获取的
+        认证之后后面的接口请求，这里是能够获取到session信息的，从浏览器cookie中获取到sessionId，然后从sessionDao中获取到session
+        */
         context = resolveSession(context);
 
-        //Similarly, the SubjectFactory should not require any concept of RememberMe - translate that here first
-        //if possible before handing off to the SubjectFactory:
         /*确保subject上下文有Principals信息，同样 第一次请求过来时候，subject是没有 Principals 信息的*/
         context = resolvePrincipals(context);
         /*第一次实例化的subject只有 安全管理器、request、response信息、authenticated=false、sessionEnabled=true这些信息*/
+        /*认证通过之后，subject里有安全管理器、request、response、sessionEnabled=true、authenticated=true、principals */
         Subject subject = doCreateSubject(context);
 
         //save this subject for future reference if necessary:
@@ -464,6 +463,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
             Session session = resolveContextSession(context);
             /*如果从会话管理器中获取到了session信息，则subject上下文保存起来session信息*/
             if (session != null) {
+                /*这里的session是一个delegatingSession信息*/
                 context.setSession(session);
             }
         } catch (InvalidSessionException e) {
@@ -510,7 +510,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
      */
     @SuppressWarnings({"unchecked"})
     protected SubjectContext resolvePrincipals(SubjectContext context) {
-
+        /*认证之后，后面的接口 principals是从session里获取的，从sessionDao获取到了session，然后从session里获取 principals信息*/
         PrincipalCollection principals = context.resolvePrincipals();
 
         if (isEmpty(principals)) {

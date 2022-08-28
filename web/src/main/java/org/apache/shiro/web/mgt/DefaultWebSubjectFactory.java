@@ -70,7 +70,7 @@ public class DefaultWebSubjectFactory extends DefaultSubjectFactory {
         String host = wsc.resolveHost();
         ServletRequest request = wsc.resolveServletRequest();
         ServletResponse response = wsc.resolveServletResponse();
-
+        /*认证通过之后，subject里就有了 principals, authenticated这两个信息*/
         return new WebDelegatingSubject(principals, authenticated, host, session, sessionEnabled,
                 request, response, securityManager);
     }

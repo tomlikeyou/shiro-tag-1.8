@@ -69,7 +69,9 @@ public class DelegatingSession implements Session, Serializable {
                     "Session.getId() invocations.";
             throw new IllegalArgumentException(msg);
         }
+        /*保存session管理器*/
         this.sessionManager = sessionManager;
+        /*保存sessionKey*/
         this.key = key;
     }
 

@@ -196,7 +196,7 @@ public class DefaultSubjectDAO implements SubjectDAO {
                 throw new IllegalStateException("Unable to access DelegatingSubject principals property.", e);
             }
         }
-        /*认证通过之后 实例化出来的subject信息里，就多了 principals 信息，跟authenticated 信息*/
+        /*认证通过之后 新实例化出来的subject信息里，就多了 principals 信息，跟authenticated 信息*/
         if (currentPrincipals == null || currentPrincipals.isEmpty()) {
             currentPrincipals = subject.getPrincipals();
         }
@@ -206,7 +206,7 @@ public class DefaultSubjectDAO implements SubjectDAO {
         if (session == null) {
             /*认证通过之后，会进入到这个代码块*/
             if (!isEmpty(currentPrincipals)) {
-                /*这里会创建一个session*/
+                /*这里会创建一个session并保存到浏览器，然后subject保存session信息*/
                 session = subject.getSession();
                 /*session保存 principals 信息*/
                 session.setAttribute(DefaultSubjectContext.PRINCIPALS_SESSION_KEY, currentPrincipals);

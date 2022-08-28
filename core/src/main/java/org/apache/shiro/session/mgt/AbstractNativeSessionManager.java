@@ -96,11 +96,17 @@ public abstract class AbstractNativeSessionManager extends AbstractSessionManage
         }
     }
 
+    /**
+     *
+     * @param context 
+     * @return
+     */
     public Session start(SessionContext context) {
-        /*实例化一个session，设置sessionId属性，使用sessionDao保存session然后返回session*/
+        /*实例化一个shiro的session，设置sessionId属性，使用sessionDao保存session然后返回session*/
         Session session = createSession(context);
         /*session保存全局过期时间*/
         applyGlobalSessionTimeout(session);
+        /*创建一个cookie 值是session的id值，保存到response当中*/
         onStart(session, context);
         /*通知session监听器，触发回调方法*/
         notifyStart(session);

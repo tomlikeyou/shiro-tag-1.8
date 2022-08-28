@@ -166,6 +166,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
             //try the session:
             Session session = resolveSession();
             if (session != null) {
+                /*认证之后 后面的接口，这里的session是 delegatingSession*/
                 principals = (PrincipalCollection) session.getAttribute(PRINCIPALS_SESSION_KEY);
             }
         }
@@ -186,7 +187,8 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         /*从subject上下文获取 session信息*/
         Session session = getSession();
         if (session == null) {
-            /*尝试从subject上下文获取subject 从subject中获取，认证通过之后调用该方法获取到的是threadLocal里的subject，这个subject是只有安全管理器、request、response信息*/
+            /*尝试从subject上下文获取subject 从subject中获取，
+            刚认证通过之后调用该方法时候获取到的是threadLocal里的subject，这个subject是只有安全管理器、request、response信息，因此也是获取不到session的*/
             Subject existingSubject = getSubject();
             if (existingSubject != null) {
                 session = existingSubject.getSession(false);

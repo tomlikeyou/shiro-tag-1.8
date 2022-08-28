@@ -466,8 +466,8 @@ public abstract class AbstractShiroFilter extends OncePerRequestFilter {
     protected void executeChain(ServletRequest request, ServletResponse response, FilterChain origChain)
             throws IOException, ServletException {
         /*筛选出匹配当前请求的 过滤器链 可能有匹配的，也有可能没有匹配的*/
-        FilterChain chain = getExecutionChain(request, response, origChain);
         /*这里调用doFilter方法*/
+        FilterChain chain = getExecutionChain(request, response, origChain);
         chain.doFilter(request, response);
     }
 }

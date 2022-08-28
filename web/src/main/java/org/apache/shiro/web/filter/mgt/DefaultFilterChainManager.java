@@ -53,9 +53,9 @@ public class DefaultFilterChainManager implements FilterChainManager {
     /*servlet的 filterConfig信息，在配置filter时候，能够给filter添加一些初始化参数信息，这些初始化参数信息保存在这里，如过滤器名称，servlet上下文，根据名称获取值...*/
     private FilterConfig filterConfig;
     /*保存默认的过滤器信息，以及我们自定义配置的过滤器信息*/
-    private Map<String, Filter> filters; //pool of filters available for creating chains
+    private Map<String, Filter> filters;
     /*全局的过滤器名称集合*/
-    private List<String> globalFilterNames; // list of filters to prepend to every chain
+    private List<String> globalFilterNames;
     /*配置的url -> authc/anon... 以及 过滤器类型保存在这里*/
     private Map<String, NamedFilterList> filterChains; //key: chain name, value: chain
 

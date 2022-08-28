@@ -221,6 +221,7 @@ public class DefaultSessionManager extends AbstractValidatingSessionManager impl
                     "session could not be found.", sessionKey);
             return null;
         }
+        /*根据sessionId从sessionDao中获取session*/
         Session s = retrieveSessionFromDataSource(sessionId);
         if (s == null) {
             //session ID was provided, meaning one is expected to be found, but we couldn't find one:
