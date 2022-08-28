@@ -148,7 +148,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         PrincipalCollection principals = getPrincipals();
 
         if (isEmpty(principals)) {
-            //检查它们是否刚刚通过身份验证
+            //检查它们是否刚刚通过身份验证，认证通过之后这里是能获取到信息的
             AuthenticationInfo info = getAuthenticationInfo();
             if (info != null) {
                 principals = info.getPrincipals();
@@ -186,7 +186,7 @@ public class DefaultSubjectContext extends MapContext implements SubjectContext 
         /*从subject上下文获取 session信息*/
         Session session = getSession();
         if (session == null) {
-            /*尝试从subject上下文获取subject 从subject中获取*/
+            /*尝试从subject上下文获取subject 从subject中获取，认证通过之后调用该方法获取到的是threadLocal里的subject，这个subject是只有安全管理器、request、response信息*/
             Subject existingSubject = getSubject();
             if (existingSubject != null) {
                 session = existingSubject.getSession(false);

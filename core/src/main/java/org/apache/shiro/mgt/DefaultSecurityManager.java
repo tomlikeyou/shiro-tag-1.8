@@ -297,7 +297,7 @@ public class DefaultSecurityManager extends SessionsSecurityManager {
         * 保存相关信息 然后实例化一个新的subject
         * 参数1：token信息
         * 参数2：认证info信息
-        * 参数3：threadLocal里的subject，暂称之为旧的 subject
+        * 参数3：threadLocal里的subject，暂称之为旧的 subject 或者称之为真实暴露在外的subject
         * */
         Subject loggedIn = createSubject(token, info, subject);
 
