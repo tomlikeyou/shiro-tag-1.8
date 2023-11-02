@@ -32,12 +32,18 @@ import java.util.List;
  * {@code FilterChain} instance.
  *
  * @since 0.9
- * 实现了servlet容器的 过滤器链接口
+ * 实现了servlet容器的 过滤器链接口，内部有servlet原始的过滤器链，也有Shiro的过滤器集合
  */
 public class ProxiedFilterChain implements FilterChain {
     private static final Logger log = LoggerFactory.getLogger(ProxiedFilterChain.class);
 
+    /**
+     * Servlet原始的过滤器链
+     */
     private FilterChain orig;
+    /**
+     * Shiro匹配后的过滤器集合
+     */
     private List<Filter> filters;
     private int index = 0;
 

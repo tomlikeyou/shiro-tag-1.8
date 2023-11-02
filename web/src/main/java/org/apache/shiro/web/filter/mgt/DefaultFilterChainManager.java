@@ -172,7 +172,12 @@ public class DefaultFilterChainManager implements FilterChainManager {
         for (String token : filterTokens) {
             String[] nameConfigPair = toNameConfigPair(token);
 
-            //现在我们有了路径、过滤器名称、（可能为空的）路径特定的配置，保存起来
+            /**
+             * 现在我们有了路径、过滤器名称、（可能为空的）路径特定的配置，保存起来
+             * 参数1：配置的ulr
+             * 参数2：过滤器名称
+             * 参数3：url特定的配置（可能为空）
+             */
             addToChain(chainName, nameConfigPair[0], nameConfigPair[1]);
         }
     }

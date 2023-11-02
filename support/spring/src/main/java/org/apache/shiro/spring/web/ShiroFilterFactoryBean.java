@@ -141,7 +141,7 @@ public class ShiroFilterFactoryBean implements FactoryBean, BeanPostProcessor {
     public ShiroFilterFactoryBean() {
         this.filters = new LinkedHashMap<String, Filter>();
         this.globalFilters = new ArrayList<>();
-        /*默认添加全局的filter*/
+        /*添加共用的过滤器名*/
         this.globalFilters.add(DefaultFilter.invalidRequest.name());
         this.filterChainDefinitionMap = new LinkedHashMap<String, String>(); //order matters!
     }
